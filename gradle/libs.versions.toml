@@ -28,6 +28,8 @@ googleApiClient = "2.4.0"
 googleCalendarApi = "v3-rev20250404-2.0.0"
 playBilling = "8.3.0"
 timber = "5.0.1"
+generativeAi = "0.9.0"
+
 
 [libraries]
 # AndroidX Core
@@ -97,6 +99,9 @@ play-billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", 
 
 # Timber
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+# Gemini AI
+google-generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeAi" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }

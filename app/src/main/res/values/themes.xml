@@ -2,4 +2,10 @@
 <resources>
 
     <style name="Theme.Recally" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Recally.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#1E293B</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/recallly_ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Recally</item>
+    </style>
 </resources>

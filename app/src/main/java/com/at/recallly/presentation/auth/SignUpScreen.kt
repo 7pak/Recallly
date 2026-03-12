@@ -2,6 +2,7 @@ package com.at.recallly.presentation.auth
 
 import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -53,7 +55,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 
 @Composable
 fun SignUpScreen(
@@ -364,6 +368,12 @@ fun SignUpScreen(
             enabled = !uiState.isLoading,
             shape = RoundedCornerShape(12.dp)
         ) {
+            Image(
+                painter = painterResource(id = R.mipmap.google_icon_foreground),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Continue with Google",
                 style = MaterialTheme.typography.labelLarge

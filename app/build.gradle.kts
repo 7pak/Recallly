@@ -22,6 +22,8 @@ android {
         version = release(36)
     }
 
+    ndkVersion = "26.3.11579264"
+
     defaultConfig {
         applicationId = "com.at.recallly"
         minSdk = 28
@@ -32,6 +34,27 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "WEB_CLIENT_ID", "\"${localProps.getProperty("WEB_CLIENT_ID", "")}\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"${localProps.getProperty("GEMINI_API_KEY", "")}\"")
+
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+        externalNativeBuild {
+            cmake {
+                arguments += listOf(
+                    "-DWHISPER_BUILD_TESTS=OFF",
+                    "-DWHISPER_BUILD_EXAMPLES=OFF",
+                    "-DGGML_OPENMP=OFF"
+                )
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     buildTypes {
@@ -138,6 +161,9 @@ dependencies {
 
     // Timber
     implementation(libs.timber)
+
+    // Gemini AI
+    implementation(libs.google.generativeai)
 
     // Testing
     testImplementation(libs.junit)
