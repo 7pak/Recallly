@@ -9,6 +9,7 @@ interface ExtractionService {
     suspend fun extractFields(
         transcript: String,
         persona: Persona,
-        fields: List<PersonaField>
+        fields: List<PersonaField>,
+        language: String = "en"
     ): Result<ExtractionResult>
 }

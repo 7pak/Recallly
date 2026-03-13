@@ -1,0 +1,282 @@
+<resources>
+    <string name="app_name">Recallly</string>
+
+    <!-- Common -->
+    <string name="common_cancel">إلغاء</string>
+    <string name="common_confirm">تأكيد</string>
+    <string name="common_save">حفظ</string>
+    <string name="common_continue">متابعة</string>
+    <string name="common_back">رجوع</string>
+    <string name="common_or_continue_with">\u0020\u0020أو المتابعة عبر\u0020\u0020</string>
+    <string name="common_email">البريد الإلكتروني</string>
+    <string name="common_password">كلمة المرور</string>
+    <string name="common_hide_password">إخفاء كلمة المرور</string>
+    <string name="common_show_password">إظهار كلمة المرور</string>
+    <string name="common_select_all">تحديد الكل</string>
+    <string name="common_discard">تجاهل</string>
+    <string name="common_not_now">ليس الآن</string>
+
+    <!-- Login -->
+    <string name="login_welcome_back">مرحباً بعودتك</string>
+    <string name="login_sign_in_to_continue">سجّل الدخول للمتابعة</string>
+    <string name="login_log_in">تسجيل الدخول</string>
+    <string name="login_continue_with_google">المتابعة عبر Google</string>
+    <string name="login_no_account">ليس لديك حساب؟</string>
+    <string name="login_sign_up">إنشاء حساب</string>
+
+    <!-- Sign Up -->
+    <string name="signup_create_account">إنشاء حساب</string>
+    <string name="signup_get_started">ابدأ مع Recallly</string>
+    <string name="signup_full_name">الاسم الكامل</string>
+    <string name="signup_confirm_password">تأكيد كلمة المرور</string>
+    <string name="signup_sign_up">إنشاء حساب</string>
+    <string name="signup_continue_with_google">المتابعة عبر Google</string>
+    <string name="signup_already_have_account">لديك حساب بالفعل؟</string>
+    <string name="signup_log_in">تسجيل الدخول</string>
+
+    <!-- Validation Errors -->
+    <string name="error_email_required">البريد الإلكتروني مطلوب</string>
+    <string name="error_email_invalid">صيغة البريد الإلكتروني غير صحيحة</string>
+    <string name="error_password_required">كلمة المرور مطلوبة</string>
+    <string name="error_password_too_short">يجب أن تكون كلمة المرور 6 أحرف على الأقل</string>
+    <string name="error_name_required">الاسم مطلوب</string>
+    <string name="error_confirm_password">يرجى تأكيد كلمة المرور</string>
+    <string name="error_passwords_mismatch">كلمتا المرور غير متطابقتين</string>
+    <string name="error_no_persona">لم يتم اختيار تخصص</string>
+    <string name="error_min_fields">يرجى اختيار 3 حقول على الأقل</string>
+    <string name="error_min_workdays">يرجى اختيار يوم عمل واحد على الأقل</string>
+    <string name="error_end_after_start">يجب أن يكون وقت الانتهاء بعد وقت البدء</string>
+
+    <!-- Persona Selection -->
+    <string name="persona_whats_your_role">ما هو تخصصك؟</string>
+    <string name="persona_select_subtitle">اختر مهنتك حتى نتمكن من تخصيص الذكاء الاصطناعي لاحتياجاتك</string>
+
+    <!-- Persona Names -->
+    <string name="persona_sales_rep">مندوب مبيعات</string>
+    <string name="persona_sales_rep_desc">تتبّع الصفقات والعملاء والمتابعات</string>
+    <string name="persona_field_engineer">مهندس ميداني</string>
+    <string name="persona_field_engineer_desc">سجّل زيارات المواقع والمعدات والمشكلات</string>
+    <string name="persona_insurance_adjuster">مُقيّم تأمين</string>
+    <string name="persona_insurance_adjuster_desc">وثّق المطالبات والأضرار والمعاينات</string>
+
+    <!-- PersonaField: Sales Rep -->
+    <string name="field_sr_client_name">اسم العميل والمسمى الوظيفي</string>
+    <string name="field_sr_client_name_desc">الاسم الكامل والمسمى الوظيفي</string>
+    <string name="field_sr_company">اسم الشركة</string>
+    <string name="field_sr_company_desc">المؤسسة التي يمثلها</string>
+    <string name="field_sr_deal_value">قيمة الصفقة</string>
+    <string name="field_sr_deal_value_desc">الميزانية أو حجم العقد المذكور</string>
+    <string name="field_sr_pain_points">نقاط الألم</string>
+    <string name="field_sr_pain_points_desc">المشكلات التي يحاولون حلها</string>
+    <string name="field_sr_interest_level">مستوى الاهتمام</string>
+    <string name="field_sr_interest_level_desc">تقييم الذكاء الاصطناعي: بارد، دافئ، أو ساخن</string>
+    <string name="field_sr_competitive">ذكر المنافسين</string>
+    <string name="field_sr_competitive_desc">أي منافسين تمت مناقشتهم</string>
+    <string name="field_sr_next_action">الإجراء التالي</string>
+    <string name="field_sr_next_action_desc">الخطوة التالية المتفق عليها</string>
+    <string name="field_sr_followup_date">تاريخ المتابعة</string>
+    <string name="field_sr_followup_date_desc">موعد المتابعة المجدول للتقويم</string>
+
+    <!-- PersonaField: Field Engineer -->
+    <string name="field_fe_site_name">اسم الموقع/المكان</string>
+    <string name="field_fe_site_name_desc">مكان تنفيذ العمل</string>
+    <string name="field_fe_asset_id">رقم الأصل/المعدة</string>
+    <string name="field_fe_asset_id_desc">رمز الآلة أو النظام المحدد</string>
+    <string name="field_fe_issue_desc">وصف المشكلة</string>
+    <string name="field_fe_issue_desc_desc">التفاصيل التقنية للمشكلة</string>
+    <string name="field_fe_parts">القطع المطلوبة</string>
+    <string name="field_fe_parts_desc">المعدات أو الأدوات اللازمة</string>
+    <string name="field_fe_priority">مستوى الأولوية</string>
+    <string name="field_fe_priority_desc">منخفض، متوسط، عالي، أو طارئ</string>
+    <string name="field_fe_safety">مخاطر السلامة</string>
+    <string name="field_fe_safety_desc">المخاطر المحددة في الموقع</string>
+    <string name="field_fe_time_est">الوقت المقدر</string>
+    <string name="field_fe_time_est_desc">المدة المتوقعة للإصلاح</string>
+    <string name="field_fe_deadline">الموعد النهائي</string>
+    <string name="field_fe_deadline_desc">متى يجب أن يكون الموقع جاهزاً للعمل</string>
+
+    <!-- PersonaField: Insurance Adjuster -->
+    <string name="field_ia_policy">رقم الوثيقة</string>
+    <string name="field_ia_policy_desc">المرجع الخاص بالمطالبة</string>
+    <string name="field_ia_claimant">اسم المُطالب</string>
+    <string name="field_ia_claimant_desc">الشخص أو الشركة المقدمة للمطالبة</string>
+    <string name="field_ia_incident_type">نوع الحادث</string>
+    <string name="field_ia_incident_type_desc">حريق، فيضان، تصادم، سرقة، إلخ.</string>
+    <string name="field_ia_damage">تقييم الأضرار</string>
+    <string name="field_ia_damage_desc">وصف منظم للأضرار</string>
+    <string name="field_ia_liability">ملاحظات المسؤولية</string>
+    <string name="field_ia_liability_desc">تقييم الخطأ من الشهادات</string>
+    <string name="field_ia_repair_cost">تكلفة الإصلاح المقدرة</string>
+    <string name="field_ia_repair_cost_desc">تقدير المُقيّم المنطوق</string>
+    <string name="field_ia_evidence">الأدلة المجمعة</string>
+    <string name="field_ia_evidence_desc">صور، شهادات شهود، إلخ.</string>
+    <string name="field_ia_inspection_date">تاريخ المعاينة</string>
+    <string name="field_ia_inspection_date_desc">الوقت الرسمي للزيارة</string>
+
+    <!-- Field Selection -->
+    <string name="fields_choose_title">اختر الحقول</string>
+    <string name="fields_choose_subtitle">حدد ما يستخرجه الذكاء الاصطناعي من ملاحظاتك الصوتية</string>
+    <string name="fields_selected_count">%1$d من %2$d محدد (الحد الأدنى 3)</string>
+    <string name="fields_custom_title">حقول مخصصة</string>
+    <string name="fields_custom_desc">أنشئ حقول استخراج خاصة بك مصممة لسير عملك</string>
+    <string name="fields_custom_pro">PRO</string>
+
+    <!-- Work Schedule -->
+    <string name="schedule_title">حدد ساعات عملك</string>
+    <string name="schedule_subtitle">سيكون مساعدك الذكي نشطاً خلال هذه الساعات</string>
+    <string name="schedule_working_days">أيام العمل</string>
+    <string name="schedule_working_hours">ساعات العمل</string>
+    <string name="schedule_start">البداية</string>
+    <string name="schedule_end">النهاية</string>
+    <string name="schedule_select_time">اختر وقت %1$s</string>
+    <string name="schedule_get_started">ابدأ الآن</string>
+    <string name="schedule_no_days">لم يتم اختيار أيام عمل</string>
+    <string name="schedule_every_day">كل يوم</string>
+    <string name="schedule_mon_fri">الإثنين \u2013 الجمعة</string>
+
+    <!-- Data Consent -->
+    <string name="consent_title">بياناتك، تحت سيطرتك</string>
+    <string name="consent_subtitle">نؤمن بأن بيانات عملك ملك لك.\nإليك كيف نحافظ على أمانها.</string>
+    <string name="consent_local_title">تخزين محلي فقط</string>
+    <string name="consent_local_desc">جميع ملاحظاتك الصوتية والبيانات المستخرجة مخزنة محلياً على هذا الجهاز. لا يتم رفع أي شيء إلى أي خادم.</string>
+    <string name="consent_drive_title">نسخ احتياطي على Google Drive</string>
+    <string name="consent_drive_desc">انسخ بياناتك احتياطياً اختيارياً إلى Google Drive الخاص بك. إذا غيّرت جهازك أو أعدت التثبيت، ستتم استعادة بياناتك تلقائياً.</string>
+    <string name="consent_export_title">تصدير في أي وقت</string>
+    <string name="consent_export_desc">يمكنك تصدير جميع بيانات عملائك في أي وقت من إعدادات التطبيق قبل إلغاء التثبيت.</string>
+    <string name="consent_accept">فهمت، هيا نبدأ</string>
+
+    <!-- Home -->
+    <string name="home_greeting_morning">صباح الخير</string>
+    <string name="home_greeting_afternoon">مساء الخير</string>
+    <string name="home_greeting_evening">مساء الخير</string>
+    <string name="home_tab_home">الرئيسية</string>
+    <string name="home_tab_my_data">بياناتي</string>
+    <string name="home_record_note">تسجيل ملاحظة صوتية</string>
+    <string name="home_todays_summary">ملخص اليوم</string>
+    <string name="home_notes_today">%1$d ملاحظة اليوم</string>
+    <string name="home_recent_notes">الملاحظات الأخيرة</string>
+    <string name="home_no_notes_title">لا توجد ملاحظات بعد</string>
+    <string name="home_no_notes_subtitle">اضغط على المايك لتسجيل أول ملاحظة صوتية</string>
+    <string name="home_filter_all">الكل</string>
+    <string name="home_filter_today">اليوم</string>
+    <string name="home_filter_this_week">هذا الأسبوع</string>
+    <string name="home_no_notes_found">لم يتم العثور على ملاحظات صوتية</string>
+    <string name="home_no_notes_found_subtitle">سجّل ملاحظة للبدء</string>
+    <string name="home_extraction_queued">الاستخراج في قائمة الانتظار</string>
+    <string name="home_fields_captured">تم التقاط %1$d من %2$d حقل</string>
+
+    <!-- Home: Model Download -->
+    <string name="home_model_prompt_title">تفعيل التسجيل بدون إنترنت؟</string>
+    <string name="home_model_prompt_desc">حمّل نموذج التعرف على الكلام (~%1$d ميجابايت) لتسجيل الملاحظات الصوتية بدون إنترنت. يمكنك تحميله لاحقاً من الإعدادات.</string>
+    <string name="home_model_download_now">تحميل الآن</string>
+    <string name="home_model_maybe_later">ربما لاحقاً</string>
+    <string name="home_model_downloading">جارٍ تحميل نموذج الصوت…</string>
+    <string name="home_model_enable_offline">تفعيل التسجيل بدون إنترنت</string>
+    <string name="home_model_download_failed">فشل التحميل — اضغط لإعادة المحاولة</string>
+    <string name="home_model_download_ready">تحميل النموذج (%1$d ميجابايت)</string>
+    <string name="home_model_downloaded">تم التحميل (%1$d ميجابايت)</string>
+    <string name="home_model_downloading_percent">جارٍ التحميل %1$d%%…</string>
+    <string name="home_model_not_downloaded">غير محمّل (%1$d ميجابايت)</string>
+
+    <!-- Home: Recording UI -->
+    <string name="recording_listening">جاري الاستماع…</string>
+    <string name="recording_stopping_in">التوقف خلال %1$d ثانية…</string>
+    <string name="recording_stopping">جاري التوقف…</string>
+    <string name="recording_start_speaking">ابدأ بالتحدث…</string>
+    <string name="recording_stop">إيقاف</string>
+    <string name="recording_extracting">جاري استخراج البيانات…</string>
+    <string name="recording_analyzing">الذكاء الاصطناعي يحلل ملاحظتك الصوتية</string>
+    <string name="recording_recording_offline">جارٍ التسجيل (بدون إنترنت)…</string>
+    <string name="recording_transcript_preview">سيظهر النص المكتوب بعد توقف التسجيل</string>
+    <string name="recording_transcribing">جارٍ تحويل الصوت إلى نص…</string>
+    <string name="recording_processing_ai">جارٍ معالجة تسجيلك بالذكاء الاصطناعي على الجهاز</string>
+    <string name="recording_duration_notice">قد يستغرق ذلك من ١ إلى ٥ دقائق حسب طول التسجيل</string>
+
+    <!-- Extraction Result -->
+    <string name="extraction_review_title">مراجعة البيانات المستخرجة</string>
+    <string name="extraction_review_subtitle">راجع وعدّل الحقول المستخرجة قبل الحفظ.</string>
+
+    <!-- Offline Transcript -->
+    <string name="offline_review_title">راجع تسجيلك</string>
+    <string name="offline_review_subtitle">تحقق من النص المكتوب أدناه. إذا كان صحيحاً، احفظه وسيتم استخراج الحقول تلقائياً عند عودة الاتصال بالإنترنت.</string>
+    <string name="offline_extraction_notice">سيتم استخراج الحقول تلقائياً عند توفر الإنترنت</string>
+    <string name="offline_save_and_queue">حفظ وإضافة للانتظار</string>
+
+    <!-- Home: Recording -->
+    <string name="home_no_speech">لم يتم اكتشاف كلام. يرجى المحاولة مرة أخرى.</string>
+    <string name="home_recording_too_short">التسجيل قصير جداً. يرجى المحاولة مرة أخرى.</string>
+    <string name="home_offline_saved">تم حفظ الملاحظة الصوتية! سيتم استخراج الحقول عند عودة الاتصال بالإنترنت.</string>
+    <string name="home_need_internet">تحتاج إلى اتصال بالإنترنت لتحميل نموذج الصوت.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_professional_type">نوع التخصص</string>
+    <string name="settings_manage_fields">إدارة الحقول</string>
+    <string name="settings_fields_selected">%1$d من %2$d حقل محدد</string>
+    <string name="settings_work_schedule">جدول العمل</string>
+    <string name="settings_language">اللغة</string>
+    <string name="settings_offline_model">نموذج الصوت بدون إنترنت</string>
+    <string name="settings_model_download_failed">فشل التحميل</string>
+    <string name="settings_logout">تسجيل الخروج</string>
+    <string name="settings_logout_subtitle">الخروج من حسابك</string>
+    <string name="settings_logout_confirm">هل أنت متأكد من تسجيل الخروج؟ ستبقى بياناتك مخزنة بأمان على هذا الجهاز.</string>
+
+    <!-- Settings: Persona Selection -->
+    <string name="settings_change_persona">تغيير نوع التخصص</string>
+    <string name="settings_save_choose_fields">حفظ واختيار الحقول</string>
+
+    <!-- Settings: Field Selection -->
+    <string name="settings_select_fields_for">اختر حقول %1$s</string>
+    <string name="settings_manage_fields_title">إدارة الحقول</string>
+
+    <!-- Settings: Work Schedule -->
+    <string name="settings_work_schedule_title">جدول العمل</string>
+
+    <!-- My Data -->
+    <string name="mydata_note_count">%1$d ملاحظة</string>
+    <string name="mydata_filter_this_month">هذا الشهر</string>
+    <string name="mydata_sort_newest">الأحدث أولاً</string>
+    <string name="mydata_sort_oldest">الأقدم أولاً</string>
+    <string name="mydata_load_more">تحميل %1$d المزيد</string>
+    <string name="mydata_delete_title">حذف الملاحظة</string>
+    <string name="mydata_delete_message">سيتم حذف هذه الملاحظة الصوتية وجميع بياناتها المستخرجة نهائياً.</string>
+    <string name="mydata_delete_confirm">حذف</string>
+
+    <!-- Voice Note Detail -->
+    <string name="detail_title">تفاصيل الملاحظة الصوتية</string>
+    <string name="detail_transcript">النص المكتوب</string>
+    <string name="detail_extracted_data">البيانات المستخرجة</string>
+    <string name="detail_ai_tip">نصيحة الذكاء الاصطناعي</string>
+    <string name="detail_close">إغلاق</string>
+    <string name="detail_edit">تعديل</string>
+    <string name="detail_save">حفظ التغييرات</string>
+    <string name="detail_cancel_edit">إلغاء</string>
+    <string name="detail_extraction_pending">الاستخراج في قائمة الانتظار — سيتم ملء الحقول عند عودتك للاتصال</string>
+    <string name="detail_no_value">\u2014</string>
+
+    <!-- Export -->
+    <string name="settings_export_data">تصدير البيانات</string>
+    <string name="settings_export_subtitle">تحميل جميع الملاحظات كملف PDF</string>
+    <string name="export_exporting">جارٍ إنشاء ملف PDF…</string>
+    <string name="export_empty">لا توجد ملاحظات صوتية للتصدير</string>
+    <string name="export_error">فشل إنشاء ملف PDF</string>
+    <string name="export_pdf_title">تصدير الملاحظات الصوتية</string>
+    <string name="export_pdf_persona">نوع التخصص</string>
+    <string name="export_pdf_total_notes">إجمالي الملاحظات: %1$d</string>
+    <string name="export_pdf_date_range">%1$s – %2$s</string>
+    <string name="export_pdf_note_header">ملاحظة #%1$d</string>
+    <string name="export_pdf_transcript">النص المكتوب</string>
+    <string name="export_pdf_extracted_fields">البيانات المستخرجة</string>
+    <string name="export_pdf_ai_tip">نصيحة الذكاء الاصطناعي</string>
+    <string name="export_pdf_pending">الاستخراج قيد الانتظار</string>
+    <string name="export_pdf_no_value">غير متوفر</string>
+    <string name="export_pdf_page">صفحة %1$d من %2$d</string>
+    <string name="export_pdf_generated">تم الإنشاء بواسطة Recallly في %1$s</string>
+    <string name="export_pdf_selected_fields">الحقول المحددة</string>
+
+    <!-- Language Selection -->
+    <string name="language_model_note">تغيير اللغة سيغير أيضاً لغة التعرف على الصوت واستخراج البيانات بالذكاء الاصطناعي.</string>
+    <string name="onboarding_language_title">اختر لغتك</string>
+    <string name="onboarding_language_subtitle">حدد اللغة للتطبيق والتعرف على الصوت</string>
+    <string name="onboarding_language_note">ستُستخدم هذه اللغة لواجهة التطبيق ونموذج التعرف على الصوت. يمكنك تغييرها لاحقاً من الإعدادات.</string>
+</resources>

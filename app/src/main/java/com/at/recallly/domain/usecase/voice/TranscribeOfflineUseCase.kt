@@ -6,7 +6,7 @@ import com.at.recallly.domain.repository.WhisperRepository
 class TranscribeOfflineUseCase(
     private val whisperRepository: WhisperRepository
 ) {
-    suspend operator fun invoke(audioSamples: FloatArray): Result<String> {
-        return whisperRepository.transcribe(audioSamples)
+    suspend operator fun invoke(audioSamples: FloatArray, language: String = "en"): Result<String> {
+        return whisperRepository.transcribe(audioSamples, language)
     }
 }

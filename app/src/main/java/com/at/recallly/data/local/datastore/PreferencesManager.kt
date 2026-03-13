@@ -27,6 +27,7 @@ class PreferencesManager(private val context: Context) {
         val DATA_CONSENT_ACCEPTED = booleanPreferencesKey("data_consent_accepted")
         val DRIVE_BACKUP_ENABLED = booleanPreferencesKey("drive_backup_enabled")
         val HAS_SEEN_MODEL_PROMPT = booleanPreferencesKey("has_seen_model_prompt")
+        val APP_LANGUAGE = stringPreferencesKey("app_language")
     }
 
     fun getOnboardingStepForUser(uid: String): Flow<Int> = context.dataStore.data
@@ -78,6 +79,30 @@ class PreferencesManager(private val context: Context) {
         }
     }
 
+    suspend fun savePersonaOnly(personaName: String) {
+        context.dataStore.edit { prefs ->
+            prefs[SELECTED_PERSONA] = personaName
+        }
+    }
+
+    suspend fun saveFieldsOnly(fieldIds: Set<String>) {
+        context.dataStore.edit { prefs ->
+            prefs[SELECTED_FIELD_IDS] = fieldIds
+        }
+    }
+
+    suspend fun saveScheduleOnly(
+        workDays: Set<String>,
+        workStartTime: String,
+        workEndTime: String
+    ) {
+        context.dataStore.edit { prefs ->
+            prefs[WORK_DAYS] = workDays
+            prefs[WORK_START_TIME] = workStartTime
+            prefs[WORK_END_TIME] = workEndTime
+        }
+    }
+
     val hasSeenModelPrompt: Flow<Boolean> = context.dataStore.data
         .map { prefs -> prefs[HAS_SEEN_MODEL_PROMPT] == true }
 
@@ -92,6 +117,15 @@ class PreferencesManager(private val context: Context) {
 
     val driveBackupEnabled: Flow<Boolean> = context.dataStore.data
         .map { prefs -> prefs[DRIVE_BACKUP_ENABLED] == true }
+
+    val appLanguage: Flow<String> = context.dataStore.data
+        .map { prefs -> prefs[APP_LANGUAGE] ?: "en" }
+
+    suspend fun setAppLanguage(code: String) {
+        context.dataStore.edit { prefs ->
+            prefs[APP_LANGUAGE] = code
+        }
+    }
 
     suspend fun saveDataConsent(driveBackupEnabled: Boolean) {
         context.dataStore.edit { prefs ->

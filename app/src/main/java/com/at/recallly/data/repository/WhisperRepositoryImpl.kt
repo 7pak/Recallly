@@ -32,10 +32,18 @@ class WhisperRepositoryImpl(
         modelManager.deleteModel()
     }
 
-    override suspend fun transcribe(audioSamples: FloatArray): Result<String> {
+    override fun needsModelMigration(): Boolean = modelManager.needsMigration()
+
+    override suspend fun migrateModel() {
+        whisperContext?.release()
+        whisperContext = null
+        modelManager.migrateFromEnglishModel()
+    }
+
+    override suspend fun transcribe(audioSamples: FloatArray, language: String): Result<String> {
         return try {
             val ctx = getOrCreateContext()
-            val text = ctx.transcribeData(audioSamples)
+            val text = ctx.transcribeData(audioSamples, language)
             if (text.isBlank()) {
                 Result.Error(Exception("No speech detected in the recording"))
             } else {

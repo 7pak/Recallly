@@ -30,9 +30,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 import com.at.recallly.domain.model.PersonaField
+import com.at.recallly.presentation.util.localizedDescription
+import com.at.recallly.presentation.util.localizedDisplayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,7 +75,7 @@ fun ExtractionResultSheet(
                     tint = MaterialTheme.colorScheme.secondary
                 )
                 Text(
-                    text = "Review Extracted Data",
+                    text = stringResource(R.string.extraction_review_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -81,7 +85,7 @@ fun ExtractionResultSheet(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Review and edit the extracted fields before saving.",
+                text = stringResource(R.string.extraction_review_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -96,7 +100,7 @@ fun ExtractionResultSheet(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        text = "Transcript",
+                        text = stringResource(R.string.detail_transcript),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -120,8 +124,8 @@ fun ExtractionResultSheet(
                     value = value,
                     onValueChange = { onUpdateField(field.id, it) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(field.displayName) },
-                    placeholder = { Text(field.description) },
+                    label = { Text(field.localizedDisplayName()) },
+                    placeholder = { Text(field.localizedDescription()) },
                     singleLine = false,
                     maxLines = 3,
                     shape = RoundedCornerShape(12.dp),
@@ -156,7 +160,7 @@ fun ExtractionResultSheet(
                         )
                         Column {
                             Text(
-                                text = "AI Tip",
+                                text = stringResource(R.string.detail_ai_tip),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.tertiary
@@ -186,7 +190,7 @@ fun ExtractionResultSheet(
                         .height(48.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Discard")
+                    Text(stringResource(R.string.common_discard))
                 }
                 Button(
                     onClick = onSave,
@@ -199,7 +203,7 @@ fun ExtractionResultSheet(
                         contentColor = MaterialTheme.colorScheme.onSecondary
                     )
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.common_save))
                 }
             }
         }

@@ -21,11 +21,23 @@ import com.at.recallly.presentation.consent.DataConsentScreen
 import com.at.recallly.presentation.home.HomeScreen
 import com.at.recallly.presentation.home.HomeViewModel
 import com.at.recallly.presentation.onboarding.FieldSelectionScreen
+import com.at.recallly.presentation.onboarding.LanguageSelectionScreen
 import com.at.recallly.presentation.onboarding.OnboardingViewModel
 import com.at.recallly.presentation.onboarding.PersonaSelectionScreen
 import com.at.recallly.presentation.onboarding.WorkScheduleScreen
+import com.at.recallly.presentation.settings.SettingsFieldSelectionScreen
+import com.at.recallly.presentation.settings.SettingsPersonaSelectionScreen
+import com.at.recallly.presentation.settings.SettingsScreen
+import com.at.recallly.presentation.settings.SettingsViewModel
+import com.at.recallly.presentation.settings.SettingsWorkScheduleScreen
 import com.at.recallly.presentation.splash.SplashScreen
+import com.at.recallly.core.util.LanguageManager
+import com.at.recallly.data.local.datastore.PreferencesManager
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.toRoute
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun RecalllyNavGraph(
@@ -42,8 +54,9 @@ fun RecalllyNavGraph(
     val consentAccepted by onboardingViewModel.dataConsentAccepted.collectAsState()
 
     // React to auth + onboarding + consent state after splash
-    LaunchedEffect(authState.isLoggedIn, splashCompleted, onboardingState.onboardingStep, onboardingState.isLoading, consentAccepted) {
+    LaunchedEffect(authState.isLoggedIn, authState.isAuthResolved, splashCompleted, onboardingState.onboardingStep, onboardingState.isLoading, consentAccepted) {
         if (!splashCompleted) return@LaunchedEffect
+        if (!authState.isAuthResolved) return@LaunchedEffect
 
         // If user is not logged in, go to Login immediately (don't wait for onboarding to load)
         if (!authState.isLoggedIn) {
@@ -57,7 +70,7 @@ fun RecalllyNavGraph(
         if (onboardingState.isLoading) return@LaunchedEffect
 
         val destination = when {
-            onboardingState.onboardingStep == OnboardingStep.NOT_STARTED -> Route.PersonaSelection
+            onboardingState.onboardingStep == OnboardingStep.NOT_STARTED -> Route.LanguageSelection
             onboardingState.onboardingStep == OnboardingStep.PERSONA_COMPLETED -> Route.FieldSelection
             onboardingState.onboardingStep == OnboardingStep.FIELDS_COMPLETED -> Route.WorkSchedule
             onboardingState.onboardingStep == OnboardingStep.COMPLETED && !consentAccepted -> Route.DataConsent
@@ -79,23 +92,49 @@ fun RecalllyNavGraph(
         }
         composable<Route.Login> {
             val context = LocalContext.current
+            val prefsManager: PreferencesManager = koinInject()
+            val scope = rememberCoroutineScope()
             LoginScreen(
                 uiState = authState,
                 onEvent = { authViewModel.onEvent(it) },
                 onGoogleSignIn = { authViewModel.onEvent(AuthUiEvent.LoginWithGoogle, context) },
                 onNavigateToSignUp = {
                     navController.navigate(Route.SignUp)
+                },
+                onLanguageChanged = { code ->
+                    scope.launch { prefsManager.setAppLanguage(code) }
+                    LanguageManager.applyLanguage(code)
                 }
             )
         }
         composable<Route.SignUp> {
             val context = LocalContext.current
+            val prefsManager: PreferencesManager = koinInject()
+            val scope = rememberCoroutineScope()
             SignUpScreen(
                 uiState = authState,
                 onEvent = { authViewModel.onEvent(it) },
                 onGoogleSignIn = { authViewModel.onEvent(AuthUiEvent.LoginWithGoogle, context) },
                 onNavigateToLogin = {
                     navController.popBackStack()
+                },
+                onLanguageChanged = { code ->
+                    scope.launch { prefsManager.setAppLanguage(code) }
+                    LanguageManager.applyLanguage(code)
+                }
+            )
+        }
+        composable<Route.LanguageSelection> {
+            val prefsManager: PreferencesManager = koinInject()
+            val scope = rememberCoroutineScope()
+            LanguageSelectionScreen(
+                currentLanguageCode = LanguageManager.getCurrentLanguageCode(),
+                onLanguageSelected = { code ->
+                    scope.launch { prefsManager.setAppLanguage(code) }
+                    LanguageManager.applyLanguage(code)
+                },
+                onContinue = {
+                    navController.navigate(Route.PersonaSelection)
                 }
             )
         }
@@ -144,7 +183,74 @@ fun RecalllyNavGraph(
             HomeScreen(
                 uiState = homeState,
                 onEvent = { homeViewModel.onEvent(it) },
-                onLogout = { homeViewModel.logout() }
+                onNavigateToSettings = {
+                    navController.navigate(Route.Settings)
+                }
+            )
+        }
+        composable<Route.Settings> {
+            val settingsViewModel: SettingsViewModel = koinViewModel()
+            val settingsState by settingsViewModel.uiState.collectAsState()
+            SettingsScreen(
+                uiState = settingsState,
+                onEvent = { settingsViewModel.onEvent(it) },
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToPersonaSelection = {
+                    navController.navigate(Route.SettingsPersonaSelection)
+                },
+                onNavigateToFieldSelection = {
+                    navController.navigate(Route.SettingsFieldSelection())
+                },
+                onNavigateToSchedule = {
+                    navController.navigate(Route.SettingsWorkSchedule)
+                },
+                onLogout = {
+                    settingsViewModel.logout()
+                }
+            )
+        }
+        composable<Route.SettingsPersonaSelection> {
+            val settingsViewModel: SettingsViewModel = koinViewModel()
+            val settingsState by settingsViewModel.uiState.collectAsState()
+            SettingsPersonaSelectionScreen(
+                uiState = settingsState,
+                onEvent = { settingsViewModel.onEvent(it) },
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToFieldSelection = {
+                    navController.navigate(Route.SettingsFieldSelection(fromPersonaChange = true)) {
+                        popUpTo(Route.Settings)
+                    }
+                }
+            )
+        }
+        composable<Route.SettingsFieldSelection> { backStackEntry ->
+            val route = backStackEntry.toRoute<Route.SettingsFieldSelection>()
+            val settingsViewModel: SettingsViewModel = koinViewModel()
+            val settingsState by settingsViewModel.uiState.collectAsState()
+            LaunchedEffect(Unit) {
+                if (route.fromPersonaChange) {
+                    settingsViewModel.loadFieldsForNewPersona()
+                } else {
+                    settingsViewModel.loadFieldsForCurrentPersona()
+                }
+            }
+            SettingsFieldSelectionScreen(
+                uiState = settingsState,
+                onEvent = { settingsViewModel.onEvent(it) },
+                fromPersonaChange = route.fromPersonaChange,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable<Route.SettingsWorkSchedule> {
+            val settingsViewModel: SettingsViewModel = koinViewModel()
+            val settingsState by settingsViewModel.uiState.collectAsState()
+            LaunchedEffect(Unit) {
+                settingsViewModel.loadCurrentSchedule()
+            }
+            SettingsWorkScheduleScreen(
+                uiState = settingsState,
+                onEvent = { settingsViewModel.onEvent(it) },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

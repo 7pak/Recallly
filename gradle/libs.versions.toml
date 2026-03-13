@@ -29,6 +29,7 @@ googleCalendarApi = "v3-rev20250404-2.0.0"
 playBilling = "8.3.0"
 timber = "5.0.1"
 generativeAi = "0.9.0"
+appcompat = "1.7.0"
 
 
 [libraries]
@@ -99,6 +100,9 @@ play-billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", 
 
 # Timber
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+# AppCompat
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 # Gemini AI
 google-generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeAi" }

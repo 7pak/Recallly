@@ -41,9 +41,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.at.recallly.R
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.format.TextStyle
@@ -69,13 +71,13 @@ fun WorkScheduleScreen(
         Spacer(modifier = Modifier.height(60.dp))
 
         Text(
-            text = "Set Your Work Hours",
+            text = stringResource(R.string.schedule_title),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Your AI assistant will be active during these hours",
+            text = stringResource(R.string.schedule_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -84,7 +86,7 @@ fun WorkScheduleScreen(
 
         // Working Days Section
         Text(
-            text = "Working Days",
+            text = stringResource(R.string.schedule_working_days),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -101,7 +103,7 @@ fun WorkScheduleScreen(
 
         // Working Hours Section
         Text(
-            text = "Working Hours",
+            text = stringResource(R.string.schedule_working_hours),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -114,13 +116,13 @@ fun WorkScheduleScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             TimeSelector(
-                label = "Start",
+                label = stringResource(R.string.schedule_start),
                 time = uiState.startTime,
                 onTimeSelected = { onEvent(OnboardingUiEvent.SetStartTime(it)) },
                 modifier = Modifier.weight(1f)
             )
             TimeSelector(
-                label = "End",
+                label = stringResource(R.string.schedule_end),
                 time = uiState.endTime,
                 onTimeSelected = { onEvent(OnboardingUiEvent.SetEndTime(it)) },
                 modifier = Modifier.weight(1f)
@@ -195,7 +197,7 @@ fun WorkScheduleScreen(
             )
         ) {
             Text(
-                text = "Get Started",
+                text = stringResource(R.string.schedule_get_started),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -312,7 +314,7 @@ private fun TimeSelector(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Select $label Time",
+                        text = stringResource(R.string.schedule_select_time, label),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -336,7 +338,7 @@ private fun TimeSelector(
                             onClick = { showPicker = false },
                             colors = ButtonDefaults.textButtonColors()
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.common_cancel))
                         }
                         Button(
                             onClick = {
@@ -350,7 +352,7 @@ private fun TimeSelector(
                                 contentColor = MaterialTheme.colorScheme.onSecondary
                             )
                         ) {
-                            Text("Confirm")
+                            Text(stringResource(R.string.common_confirm))
                         }
                     }
                 }
@@ -368,14 +370,15 @@ private fun formatTime(time: LocalTime): String {
     return "$hour:$minute $amPm"
 }
 
+@Composable
 private fun buildScheduleSummary(state: OnboardingUiState): String {
-    if (state.workDays.isEmpty()) return "No working days selected"
+    if (state.workDays.isEmpty()) return stringResource(R.string.schedule_no_days)
 
     val sortedDays = state.workDays.sorted()
     val dayStr = when {
-        sortedDays.size == 7 -> "Every day"
+        sortedDays.size == 7 -> stringResource(R.string.schedule_every_day)
         sortedDays.size == 5 && DayOfWeek.SATURDAY !in sortedDays && DayOfWeek.SUNDAY !in sortedDays ->
-            "Mon – Fri"
+            stringResource(R.string.schedule_mon_fri)
         else -> sortedDays.joinToString(", ") {
             it.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
         }

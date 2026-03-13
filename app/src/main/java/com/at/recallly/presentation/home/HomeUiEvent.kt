@@ -16,4 +16,10 @@ sealed interface HomeUiEvent {
     data object StopWhisperRecording : HomeUiEvent
     data object CancelWhisperRecording : HomeUiEvent
     data object DismissInitialModelPrompt : HomeUiEvent
+    data class SelectVoiceNote(val id: String) : HomeUiEvent
+    data object DismissVoiceNoteDetail : HomeUiEvent
+    data class EditVoiceNote(val id: String) : HomeUiEvent
+    data class UpdateNoteField(val fieldId: String, val value: String) : HomeUiEvent
+    data object SaveNoteEdits : HomeUiEvent
+    data object CancelNoteEdits : HomeUiEvent
 }

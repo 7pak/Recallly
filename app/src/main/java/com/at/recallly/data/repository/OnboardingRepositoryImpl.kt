@@ -49,12 +49,28 @@ class OnboardingRepositoryImpl(
         preferencesManager.savePersonaStep(uid, persona.name)
     }
 
+    override suspend fun savePersonaOnly(persona: Persona) {
+        preferencesManager.savePersonaOnly(persona.name)
+    }
+
     override suspend fun saveFields(fieldIds: Set<String>) {
         preferencesManager.saveFieldsStep(fieldIds)
     }
 
+    override suspend fun saveFieldsOnly(fieldIds: Set<String>) {
+        preferencesManager.saveFieldsOnly(fieldIds)
+    }
+
     override suspend fun saveScheduleAndComplete(workSchedule: WorkSchedule) {
         preferencesManager.saveScheduleStep(
+            workDays = workSchedule.workDays.map { it.name }.toSet(),
+            workStartTime = workSchedule.startTime.toString(),
+            workEndTime = workSchedule.endTime.toString()
+        )
+    }
+
+    override suspend fun saveSchedule(workSchedule: WorkSchedule) {
+        preferencesManager.saveScheduleOnly(
             workDays = workSchedule.workDays.map { it.name }.toSet(),
             workStartTime = workSchedule.startTime.toString(),
             workEndTime = workSchedule.endTime.toString()

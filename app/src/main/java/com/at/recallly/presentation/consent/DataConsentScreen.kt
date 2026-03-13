@@ -36,8 +36,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 
 @Composable
 fun DataConsentScreen(
@@ -66,7 +68,7 @@ fun DataConsentScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Your Data, Your Control",
+            text = stringResource(R.string.consent_title),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -74,7 +76,7 @@ fun DataConsentScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "We believe your business data belongs to you.\nHere's how we keep it safe.",
+            text = stringResource(R.string.consent_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
@@ -85,8 +87,8 @@ fun DataConsentScreen(
         // Card 1: Local Storage (required checkbox)
         ConsentCard(
             icon = Icons.Outlined.PhoneAndroid,
-            title = "Local Storage Only",
-            description = "All your voice notes and extracted data are stored locally on this device. Nothing is uploaded to any server.",
+            title = stringResource(R.string.consent_local_title),
+            description = stringResource(R.string.consent_local_desc),
             trailing = {
                 Checkbox(
                     checked = localStorageAccepted,
@@ -104,8 +106,8 @@ fun DataConsentScreen(
         // Card 2: Google Drive Backup (optional toggle)
         ConsentCard(
             icon = Icons.Outlined.CloudUpload,
-            title = "Google Drive Backup",
-            description = "Optionally back up your data to your personal Google Drive. If you switch devices or reinstall, your data will be restored automatically.",
+            title = stringResource(R.string.consent_drive_title),
+            description = stringResource(R.string.consent_drive_desc),
             trailing = {
                 Switch(
                     checked = driveBackupEnabled,
@@ -125,8 +127,8 @@ fun DataConsentScreen(
         // Card 3: Export Anytime (info only)
         ConsentCard(
             icon = Icons.Outlined.FileDownload,
-            title = "Export Anytime",
-            description = "You can export all your client data at any time from the app settings before uninstalling.",
+            title = stringResource(R.string.consent_export_title),
+            description = stringResource(R.string.consent_export_desc),
             trailing = null
         )
 
@@ -156,7 +158,7 @@ fun DataConsentScreen(
             )
         ) {
             Text(
-                text = "I Understand, Let's Go",
+                text = stringResource(R.string.consent_accept),
                 style = MaterialTheme.typography.labelLarge
             )
         }

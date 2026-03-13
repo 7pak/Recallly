@@ -33,9 +33,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 import com.at.recallly.domain.model.PersonaField
+import com.at.recallly.presentation.util.localizedDescription
+import com.at.recallly.presentation.util.localizedDisplayName
 
 @Composable
 fun FieldSelectionScreen(
@@ -58,13 +62,13 @@ fun FieldSelectionScreen(
         Spacer(modifier = Modifier.height(60.dp))
 
         Text(
-            text = "Choose Your Fields",
+            text = stringResource(R.string.fields_choose_title),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Pick what the AI extracts from your voice notes",
+            text = stringResource(R.string.fields_choose_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -73,7 +77,7 @@ fun FieldSelectionScreen(
 
         // Counter
         Text(
-            text = "${uiState.selectedFieldIds.size} of ${uiState.availableFields.size} selected (minimum 3)",
+            text = stringResource(R.string.fields_selected_count, uiState.selectedFieldIds.size, uiState.availableFields.size),
             style = MaterialTheme.typography.labelMedium,
             color = if (uiState.validationError != null) MaterialTheme.colorScheme.error
             else MaterialTheme.colorScheme.onSurfaceVariant
@@ -96,7 +100,7 @@ fun FieldSelectionScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Select All",
+                    text = stringResource(R.string.common_select_all),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -173,7 +177,7 @@ fun FieldSelectionScreen(
             )
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.common_continue),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -210,12 +214,12 @@ private fun FieldItem(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = field.displayName,
+                    text = field.localizedDisplayName(),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = field.description,
+                    text = field.localizedDescription(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -247,12 +251,12 @@ private fun CustomFieldsProBanner() {
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Custom Fields",
+                    text = stringResource(R.string.fields_custom_title),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Create your own extraction fields tailored to your workflow",
+                    text = stringResource(R.string.fields_custom_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -273,7 +277,7 @@ private fun CustomFieldsProBanner() {
                         tint = MaterialTheme.colorScheme.onTertiary
                     )
                     Text(
-                        text = "PRO",
+                        text = stringResource(R.string.fields_custom_pro),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onTertiary

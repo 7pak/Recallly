@@ -31,7 +31,7 @@ class AuthViewModel(
     init {
         getCurrentUserUseCase()
             .onEach { user ->
-                _uiState.update { it.copy(isLoggedIn = user != null) }
+                _uiState.update { it.copy(isLoggedIn = user != null, isAuthResolved = true) }
             }
             .launchIn(viewModelScope)
     }

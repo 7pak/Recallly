@@ -10,5 +10,7 @@ interface WhisperRepository {
     suspend fun downloadModel()
     suspend fun cancelDownload()
     suspend fun deleteModel()
-    suspend fun transcribe(audioSamples: FloatArray): Result<String>
+    fun needsModelMigration(): Boolean
+    suspend fun migrateModel()
+    suspend fun transcribe(audioSamples: FloatArray, language: String = "en"): Result<String>
 }

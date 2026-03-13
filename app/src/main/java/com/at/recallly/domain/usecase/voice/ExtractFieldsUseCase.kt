@@ -12,11 +12,12 @@ class ExtractFieldsUseCase(
     suspend operator fun invoke(
         transcript: String,
         persona: Persona,
-        fields: List<PersonaField>
+        fields: List<PersonaField>,
+        language: String = "en"
     ): Result<ExtractionResult> {
         if (transcript.isBlank()) {
             return Result.Error(IllegalArgumentException("Transcript is empty"))
         }
-        return extractionService.extractFields(transcript, persona, fields)
+        return extractionService.extractFields(transcript, persona, fields, language)
     }
 }

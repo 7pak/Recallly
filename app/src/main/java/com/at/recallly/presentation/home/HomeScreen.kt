@@ -4,7 +4,9 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,16 +25,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.outlined.ArrowDownward
+import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Mic
-import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,7 +50,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -61,7 +63,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,8 +79,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.at.recallly.R
+import com.at.recallly.core.util.LanguageManager
 import com.at.recallly.data.whisper.WhisperModelManager
+import com.at.recallly.presentation.util.localizedDisplayName
 import com.at.recallly.domain.model.ModelDownloadState
+import com.at.recallly.domain.model.PersonaFields
 import com.at.recallly.domain.model.VoiceNote
 import java.time.Instant
 import java.time.LocalDate
@@ -87,17 +95,17 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+private const val PAGE_SIZE = 20
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
     onEvent: (HomeUiEvent) -> Unit,
-    onLogout: () -> Unit
+    onNavigateToSettings: () -> Unit
 ) {
     val context = LocalContext.current
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
-    var showBottomSheet by remember { mutableStateOf(false) }
-    var showLogoutDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Permission launcher
@@ -123,6 +131,9 @@ fun HomeScreen(
     ) {
         RecordingBottomSheet(
             recordingState = uiState.recordingState,
+            speechLanguage = LanguageManager.getSpeechRecognizerLocale(
+                LanguageManager.getCurrentLanguageCode()
+            ),
             onStopRecording = { transcript ->
                 onEvent(HomeUiEvent.StopRecording(transcript))
             },
@@ -158,14 +169,14 @@ fun HomeScreen(
             },
             title = {
                 Text(
-                    text = "Enable Offline Recording?",
+                    text = stringResource(R.string.home_model_prompt_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
             },
             text = {
                 Text(
-                    text = "Download a speech recognition model (~${WhisperModelManager.MODEL_SIZE_MB} MB) to record voice notes without internet. You can always download it later from settings.",
+                    text = stringResource(R.string.home_model_prompt_desc, WhisperModelManager.MODEL_SIZE_MB),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -175,7 +186,7 @@ fun HomeScreen(
                     onClick = { onEvent(HomeUiEvent.DownloadWhisperModel) },
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Download Now")
+                    Text(stringResource(R.string.home_model_download_now))
                 }
             },
             dismissButton = {
@@ -183,7 +194,7 @@ fun HomeScreen(
                     onClick = { onEvent(HomeUiEvent.DismissInitialModelPrompt) },
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Maybe Later")
+                    Text(stringResource(R.string.home_model_maybe_later))
                 }
             }
         )
@@ -220,248 +231,45 @@ fun HomeScreen(
         }
     }
 
-    // Logout confirmation dialog
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            shape = RoundedCornerShape(24.dp),
-            containerColor = MaterialTheme.colorScheme.surface,
-            icon = {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.Logout,
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.error
-                )
-            },
-            title = {
-                Text(
-                    text = "Log Out",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-            },
-            text = {
-                Text(
-                    text = "Are you sure you want to log out? Your data will remain safely stored on this device.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showLogoutDialog = false
-                        onLogout()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Log Out")
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { showLogoutDialog = false },
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Cancel")
-                }
-            }
+    // Voice note detail sheet
+    uiState.selectedVoiceNote?.let { voiceNote ->
+        VoiceNoteDetailSheet(
+            voiceNote = voiceNote,
+            personaFields = uiState.selectedFields.ifEmpty { PersonaFields.getFieldsForPersona(voiceNote.persona) },
+            isEditing = uiState.editingVoiceNote != null,
+            editingFields = uiState.editingFields,
+            onEdit = { onEvent(HomeUiEvent.EditVoiceNote(voiceNote.id)) },
+            onUpdateField = { fid, v -> onEvent(HomeUiEvent.UpdateNoteField(fid, v)) },
+            onSave = { onEvent(HomeUiEvent.SaveNoteEdits) },
+            onCancelEdit = { onEvent(HomeUiEvent.CancelNoteEdits) },
+            onDismiss = { onEvent(HomeUiEvent.DismissVoiceNoteDetail) }
         )
-    }
-
-    // Settings bottom sheet
-    if (showBottomSheet) {
-        val sheetState = rememberModalBottomSheetState()
-        ModalBottomSheet(
-            onDismissRequest = { showBottomSheet = false },
-            sheetState = sheetState,
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 2.dp
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 32.dp)
-            ) {
-                Text(
-                    text = "Settings",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Language option
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showBottomSheet = false }
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Outlined.Language,
-                                contentDescription = null,
-                                modifier = Modifier.size(22.dp),
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Language",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "English",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-
-                // Offline Voice Model option
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            val state = uiState.whisperModelState
-                            if (state is ModelDownloadState.Downloaded) {
-                                // Already downloaded — could add delete option
-                            } else if (state !is ModelDownloadState.Downloading) {
-                                showBottomSheet = false
-                                onEvent(HomeUiEvent.DownloadWhisperModel)
-                            }
-                        }
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Outlined.CloudDownload,
-                                contentDescription = null,
-                                modifier = Modifier.size(22.dp),
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Offline Voice Model",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = when (val state = uiState.whisperModelState) {
-                                is ModelDownloadState.Downloaded ->
-                                    "Downloaded (${WhisperModelManager.MODEL_SIZE_MB} MB)"
-                                is ModelDownloadState.Downloading ->
-                                    "Downloading ${(state.progress * 100).toInt()}%..."
-                                is ModelDownloadState.Error -> "Download failed"
-                                ModelDownloadState.NotDownloaded ->
-                                    "Not downloaded (${WhisperModelManager.MODEL_SIZE_MB} MB)"
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-
-                // Logout option
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            showBottomSheet = false
-                            showLogoutDialog = true
-                        }
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.Logout,
-                                contentDescription = null,
-                                modifier = Modifier.size(22.dp),
-                                tint = MaterialTheme.colorScheme.onErrorContainer
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Log Out",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Text(
-                            text = "Sign out of your account",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-        }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Recallly",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.mipmap.recallly_ic_launcher_foreground),
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Recallly",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 },
                 actions = {
-                    IconButton(onClick = { showBottomSheet = true }) {
+                    IconButton(onClick = onNavigateToSettings) {
                         Icon(
-                            imageVector = Icons.Outlined.MoreVert,
-                            contentDescription = "Menu",
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = stringResource(R.string.settings_title),
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -482,10 +290,10 @@ fun HomeScreen(
                     icon = {
                         Icon(
                             imageVector = Icons.Outlined.Home,
-                            contentDescription = "Home"
+                            contentDescription = stringResource(R.string.home_tab_home)
                         )
                     },
-                    label = { Text("Home") },
+                    label = { Text(stringResource(R.string.home_tab_home)) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.secondary,
                         selectedTextColor = MaterialTheme.colorScheme.secondary,
@@ -498,10 +306,10 @@ fun HomeScreen(
                     icon = {
                         Icon(
                             imageVector = Icons.Outlined.Description,
-                            contentDescription = "My Data"
+                            contentDescription = stringResource(R.string.home_tab_my_data)
                         )
                     },
-                    label = { Text("My Data") },
+                    label = { Text(stringResource(R.string.home_tab_my_data)) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.secondary,
                         selectedTextColor = MaterialTheme.colorScheme.secondary,
@@ -532,7 +340,7 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Mic,
-                    contentDescription = "Record voice note",
+                    contentDescription = stringResource(R.string.home_record_note),
                     modifier = Modifier.size(36.dp)
                 )
             }
@@ -557,6 +365,8 @@ fun HomeScreen(
             )
             1 -> MyDataTab(
                 voiceNotes = uiState.voiceNotes,
+                onNoteClick = { onEvent(HomeUiEvent.SelectVoiceNote(it)) },
+                onDeleteNote = { onEvent(HomeUiEvent.DeleteVoiceNote(it)) },
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -595,7 +405,7 @@ private fun HomeTab(
                 tonalElevation = 0.dp
             ) {
                 Text(
-                    text = persona.displayName,
+                    text = persona.localizedDisplayName(),
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
@@ -628,7 +438,7 @@ private fun HomeTab(
                                 color = MaterialTheme.colorScheme.secondary
                             )
                             Text(
-                                text = "Downloading offline voice model...",
+                                text = stringResource(R.string.home_model_downloading),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -683,14 +493,14 @@ private fun HomeTab(
                         }
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Enable offline recording",
+                                text = stringResource(R.string.home_model_enable_offline),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = if (modelState is ModelDownloadState.Error) "Download failed — tap to retry"
-                                else "Download model (${WhisperModelManager.MODEL_SIZE_MB} MB)",
+                                text = if (modelState is ModelDownloadState.Error) stringResource(R.string.home_model_download_failed)
+                                else stringResource(R.string.home_model_download_ready, WhisperModelManager.MODEL_SIZE_MB),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = if (modelState is ModelDownloadState.Error)
                                     MaterialTheme.colorScheme.error
@@ -727,7 +537,7 @@ private fun HomeTab(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Today's Summary",
+                    text = stringResource(R.string.home_todays_summary),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -759,7 +569,7 @@ private fun HomeTab(
                         tint = MaterialTheme.colorScheme.secondary
                     )
                     Text(
-                        text = "${uiState.noteCountToday} notes today",
+                        text = stringResource(R.string.home_notes_today, uiState.noteCountToday),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -771,7 +581,7 @@ private fun HomeTab(
 
         // Recent Notes section
         Text(
-            text = "Recent Notes",
+            text = stringResource(R.string.home_recent_notes),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground
@@ -801,22 +611,26 @@ private fun HomeTab(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     )
                     Text(
-                        text = "No notes yet",
+                        text = stringResource(R.string.home_no_notes_title),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Tap the mic to record your first voice note",
+                        text = stringResource(R.string.home_no_notes_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
                 }
             }
         } else {
-            // Show recent notes (up to 5)
-            uiState.voiceNotes.take(5).forEach { note ->
-                VoiceNoteCard(note = note)
+            // Show recent notes (up to 10)
+            uiState.voiceNotes.take(10).forEach { note ->
+                VoiceNoteCard(
+                    note = note,
+                    onClick = { onEvent(HomeUiEvent.SelectVoiceNote(note.id)) },
+                    onDelete = { onEvent(HomeUiEvent.DeleteVoiceNote(note.id)) }
+                )
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
@@ -828,12 +642,22 @@ private fun HomeTab(
 @Composable
 private fun MyDataTab(
     voiceNotes: List<VoiceNote>,
+    onNoteClick: (String) -> Unit,
+    onDeleteNote: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedFilter by rememberSaveable { mutableIntStateOf(0) }
-    val filters = listOf("All", "Today", "This Week")
+    var sortNewestFirst by rememberSaveable { mutableStateOf(true) }
+    var visibleCount by rememberSaveable { mutableIntStateOf(PAGE_SIZE) }
 
-    val filteredNotes = remember(voiceNotes, selectedFilter) {
+    val filters = listOf(
+        stringResource(R.string.home_filter_all),
+        stringResource(R.string.home_filter_today),
+        stringResource(R.string.home_filter_this_week),
+        stringResource(R.string.mydata_filter_this_month)
+    )
+
+    val filteredNotes = remember(voiceNotes, selectedFilter, sortNewestFirst) {
         val todayStart = LocalDate.now()
             .atStartOfDay(ZoneId.systemDefault())
             .toInstant()
@@ -843,13 +667,29 @@ private fun MyDataTab(
             .atStartOfDay(ZoneId.systemDefault())
             .toInstant()
             .toEpochMilli()
+        val monthStart = LocalDate.now()
+            .withDayOfMonth(1)
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
 
-        when (selectedFilter) {
+        val filtered = when (selectedFilter) {
             1 -> voiceNotes.filter { it.createdAt >= todayStart }
             2 -> voiceNotes.filter { it.createdAt >= weekStart }
+            3 -> voiceNotes.filter { it.createdAt >= monthStart }
             else -> voiceNotes
         }
+        if (sortNewestFirst) filtered.sortedByDescending { it.createdAt }
+        else filtered.sortedBy { it.createdAt }
     }
+
+    // Reset pagination when filter/sort changes
+    LaunchedEffect(selectedFilter, sortNewestFirst) {
+        visibleCount = PAGE_SIZE
+    }
+
+    val paginatedNotes = filteredNotes.take(visibleCount)
+    val hasMore = visibleCount < filteredNotes.size
 
     Column(
         modifier = modifier
@@ -858,7 +698,35 @@ private fun MyDataTab(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Filter chips
+        // Header: title + note count
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.home_tab_my_data),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer
+            ) {
+                Text(
+                    text = stringResource(R.string.mydata_note_count, filteredNotes.size),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Filter chips row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -867,7 +735,12 @@ private fun MyDataTab(
                 FilterChip(
                     selected = selectedFilter == index,
                     onClick = { selectedFilter = index },
-                    label = { Text(label) },
+                    label = {
+                        Text(
+                            label,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                         selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -876,7 +749,35 @@ private fun MyDataTab(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Sort toggle
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(
+                onClick = { sortNewestFirst = !sortNewestFirst }
+            ) {
+                Icon(
+                    imageVector = if (sortNewestFirst) Icons.Outlined.ArrowDownward
+                    else Icons.Outlined.ArrowUpward,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = if (sortNewestFirst) stringResource(R.string.mydata_sort_newest)
+                    else stringResource(R.string.mydata_sort_oldest),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         if (filteredNotes.isEmpty()) {
             Box(
@@ -896,13 +797,13 @@ private fun MyDataTab(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
                     )
                     Text(
-                        text = "No voice notes found",
+                        text = stringResource(R.string.home_no_notes_found),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Record a note to get started",
+                        text = stringResource(R.string.home_no_notes_found_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
@@ -913,19 +814,296 @@ private fun MyDataTab(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(filteredNotes, key = { it.id }) { note ->
-                    VoiceNoteCard(note = note)
+                items(paginatedNotes, key = { it.id }) { note ->
+                    MyDataNoteCard(
+                        note = note,
+                        onClick = { onNoteClick(note.id) },
+                        onDelete = { onDeleteNote(note.id) }
+                    )
+                }
+
+                if (hasMore) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            OutlinedButton(
+                                onClick = { visibleCount += PAGE_SIZE },
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.mydata_load_more,
+                                        minOf(PAGE_SIZE, filteredNotes.size - visibleCount)
+                                    ),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Bottom spacer for FAB
+                item { Spacer(modifier = Modifier.height(80.dp)) }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MyDataNoteCard(
+    note: VoiceNote,
+    onClick: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    stringResource(R.string.mydata_delete_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    stringResource(R.string.mydata_delete_message),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.mydata_delete_confirm))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    val dateTime = Instant.ofEpochMilli(note.createdAt)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDateTime()
+    val dateStr = dateTime.format(DateTimeFormatter.ofPattern("MMM d, yyyy"))
+    val timeStr = dateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
+
+    val previewField = note.extractedFields.entries.firstOrNull { it.value.isNotBlank() }
+    val filledFields = note.extractedFields.count { it.value.isNotBlank() }
+    val totalFields = note.extractedFields.size
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = { showDeleteDialog = true }
+            ),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = 1.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Top row: persona badge + date + delete
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Text(
+                        text = note.persona.localizedDisplayName(),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = dateStr,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = timeStr,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                    IconButton(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = stringResource(R.string.mydata_delete_title),
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    }
+                }
+            }
+
+            // Preview field title
+            if (previewField != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = previewField.value,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            // Transcript preview
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = note.transcript,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Bottom: extraction status
+            if (note.extractionPending) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        strokeWidth = 1.5.dp,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                    Text(
+                        text = stringResource(R.string.home_extraction_queued),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+            } else if (totalFields > 0) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_fields_captured, filledFields, totalFields),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    // Progress bar
+                    LinearProgressIndicator(
+                        progress = { filledFields.toFloat() / totalFields.toFloat() },
+                        modifier = Modifier
+                            .width(80.dp)
+                            .height(4.dp),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VoiceNoteCard(
     note: VoiceNote,
+    onClick: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    stringResource(R.string.mydata_delete_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    stringResource(R.string.mydata_delete_message),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.mydata_delete_confirm))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
     val dateTime = Instant.ofEpochMilli(note.createdAt)
         .atZone(ZoneId.systemDefault())
         .toLocalDateTime()
@@ -934,7 +1112,12 @@ private fun VoiceNoteCard(
     val previewField = note.extractedFields.entries.firstOrNull { it.value.isNotBlank() }
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = { showDeleteDialog = true }
+            ),
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         tonalElevation = 1.dp
@@ -954,7 +1137,7 @@ private fun VoiceNoteCard(
                     color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Text(
-                        text = note.persona.displayName,
+                        text = note.persona.localizedDisplayName(),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
@@ -1002,7 +1185,7 @@ private fun VoiceNoteCard(
                         color = MaterialTheme.colorScheme.tertiary
                     )
                     Text(
-                        text = "Extraction queued",
+                        text = stringResource(R.string.home_extraction_queued),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.tertiary
                     )
@@ -1012,7 +1195,7 @@ private fun VoiceNoteCard(
                 val totalFields = note.extractedFields.size
                 if (totalFields > 0) {
                     Text(
-                        text = "$filledFields of $totalFields fields captured",
+                        text = stringResource(R.string.home_fields_captured, filledFields, totalFields),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -1022,21 +1205,18 @@ private fun VoiceNoteCard(
     }
 }
 
+@Composable
 private fun getGreeting(name: String): String {
     val hour = LocalTime.now().hour
     val timeGreeting = when {
-        hour < 12 -> "Good morning"
-        hour < 17 -> "Good afternoon"
-        else -> "Good evening"
+        hour < 12 -> stringResource(R.string.home_greeting_morning)
+        hour < 17 -> stringResource(R.string.home_greeting_afternoon)
+        else -> stringResource(R.string.home_greeting_evening)
     }
     return if (name.isNotBlank()) "$timeGreeting, $name" else timeGreeting
 }
 
 private fun formatTime12(time: LocalTime): String {
-    val hour = if (time.hour == 0) 12
-    else if (time.hour > 12) time.hour - 12
-    else time.hour
-    val minute = String.format("%02d", time.minute)
-    val amPm = if (time.hour < 12) "AM" else "PM"
-    return "$hour:$minute $amPm"
+    val formatter = java.time.format.DateTimeFormatter.ofPattern("h:mm a")
+    return time.format(formatter)
 }

@@ -20,7 +20,10 @@ data class HomeUiState(
     val whisperModelState: ModelDownloadState = ModelDownloadState.NotDownloaded,
     val showModelDownloadDialog: Boolean = false,
     val showInitialModelPrompt: Boolean = false,
-    val isOfflineExtraction: Boolean = false
+    val isOfflineExtraction: Boolean = false,
+    val selectedVoiceNote: VoiceNote? = null,
+    val editingVoiceNote: VoiceNote? = null,
+    val editingFields: Map<String, String> = emptyMap()
 )
 
 sealed interface RecordingState {

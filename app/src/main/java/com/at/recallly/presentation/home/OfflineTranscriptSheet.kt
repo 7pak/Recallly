@@ -26,8 +26,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +66,7 @@ fun OfflineTranscriptSheet(
                     tint = MaterialTheme.colorScheme.secondary
                 )
                 Text(
-                    text = "Review Your Recording",
+                    text = stringResource(R.string.offline_review_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -74,7 +76,7 @@ fun OfflineTranscriptSheet(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Check your transcript below. If it looks good, save it and the fields will be extracted automatically when you're back online.",
+                text = stringResource(R.string.offline_review_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -89,7 +91,7 @@ fun OfflineTranscriptSheet(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Transcript",
+                        text = stringResource(R.string.detail_transcript),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -123,7 +125,7 @@ fun OfflineTranscriptSheet(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Fields will be extracted automatically when internet is available",
+                        text = stringResource(R.string.offline_extraction_notice),
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -145,7 +147,7 @@ fun OfflineTranscriptSheet(
                         .height(48.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Discard")
+                    Text(stringResource(R.string.common_discard))
                 }
                 Button(
                     onClick = onSaveAndQueue,
@@ -158,7 +160,7 @@ fun OfflineTranscriptSheet(
                         contentColor = MaterialTheme.colorScheme.onSecondary
                     )
                 ) {
-                    Text("Save & Queue")
+                    Text(stringResource(R.string.offline_save_and_queue))
                 }
             }
         }

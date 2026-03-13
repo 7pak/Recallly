@@ -26,6 +26,15 @@ Recallly is a B2B, offline-first, AI-powered native Android app for field profes
 
 On Windows, use `gradlew.bat` instead of `./gradlew`.
 
+## Secrets & Local Configuration
+
+`local.properties` (gitignored) must contain these keys, which get injected as `BuildConfig` fields:
+
+- `WEB_CLIENT_ID` — Firebase/Google Sign-In OAuth client ID
+- `GEMINI_API_KEY` — Gemini AI API key for field extraction
+
+These are read at build time via `Properties` in `app/build.gradle.kts`.
+
 ## Architecture
 
 **Clean Architecture + MVVM** with Unidirectional Data Flow (UDF). Single `:app` module.
@@ -50,11 +59,45 @@ On Windows, use `gradlew.bat` instead of `./gradlew`.
 
 - **Entry point**: `MainActivity.kt` → `RecalllyNavGraph` → screens
 - **Application**: `RecalllyApplication.kt` (Koin + Timber initialization)
-- **DI**: `core/di/AppModule.kt` (Koin module definitions)
+- **DI**: `core/di/AppModule.kt` (single Koin module — all registrations here)
 - **Navigation**: `presentation/navigation/RecalllyNavGraph.kt` (type-safe routes via `@Serializable` sealed classes in `Route.kt`)
-- **Theme**: `core/theme/` (Color, Theme, Type)
 - **Database**: `data/local/db/RecalllyDatabase.kt` (Room, schema exports to `app/schemas/`)
 - **Preferences**: `data/local/datastore/PreferencesManager.kt`
+
+## Speech Recognition (Dual-Mode)
+
+The app uses two speech recognition paths, chosen at mic-tap time via `ConnectivityChecker`:
+
+- **Online**: Android `SpeechRecognizer` with `RecognitionListener` (real-time partial results)
+- **Offline**: whisper.cpp via JNI (batch transcription after recording finishes)
+
+### whisper.cpp Native Integration
+
+- **Git submodule** at `app/src/main/cpp/whisper.cpp/` (from `ggml-org/whisper.cpp`)
+- **CMake** build at `app/src/main/cpp/CMakeLists.txt`, JNI bridge in `app/src/main/cpp/jni.c`
+- **NDK**: r26.3 (`26.3.11579264`) — required for 16KB page alignment (Android 15+ Play Store requirement)
+- **ABI targets**: `arm64-v8a` (fp16 variant), `armeabi-v7a` (vfpv4 variant), plus generic fallback
+- **Model**: `ggml-base.en.bin` (~142MB), downloaded at runtime from Hugging Face to `filesDir/models/`
+- After cloning, initialize the submodule: `git submodule update --init --recursive`
+
+### Key Whisper Files
+
+- `data/whisper/WhisperContext.kt` — JNI wrapper
+- `data/whisper/WhisperModelManager.kt` — Model download/state management
+- `data/whisper/AudioRecorder.kt` — 16kHz PCM Float32 capture via `AudioRecord`
+- `data/repository/WhisperRepositoryImpl.kt` — Wires whisper components together
+
+### AI Extraction Pipeline
+
+- `data/remote/GeminiExtractionService.kt` — Gemini 2.5 Flash with persona-specific prompts
+- `data/worker/ExtractionWorker.kt` + `ExtractionWorkScheduler.kt` — WorkManager-based background extraction
+- `domain/usecase/voice/ExtractFieldsUseCase.kt` — Orchestrates extraction from transcript
+
+### HomeViewModel Recording States
+
+`HomeViewModel` (11 DI parameters) manages the recording lifecycle with these states:
+- `RecordingState.Idle` → `Recording` (online) or `RecordingWhisper` (offline) → `Transcribing` → `Processing`
+- `ModelDownloadState`: `NotDownloaded` → `Downloading(progress)` → `Downloaded` | `Error`
 
 ## Dependency Management
 
@@ -73,6 +116,7 @@ Dependencies managed via version catalog at `gradle/libs.versions.toml`. Add new
 | Billing | Google Play Billing |
 | Background | WorkManager |
 | Logging | Timber |
+| AI | Google Generative AI (Gemini) |
 | Serialization | Kotlinx Serialization JSON |
 
 ## Architectural Rules
@@ -83,3 +127,4 @@ Dependencies managed via version catalog at `gradle/libs.versions.toml`. Add new
 - Repositories implement domain interfaces in the data layer.
 - Strictly offline-first — no cloud database.
 - KSP + Room compiler are commented out — KSP 2.3+ requires AGP 9.0+ which Android Studio doesn't yet support. Uncomment when upgrading to AGP 9.
+- Voice notes are stored as JSON files via `VoiceNoteFileStorage` (not Room) — loaded into memory on app start via `VoiceNoteRepositoryImpl.loadFromDisk()`.

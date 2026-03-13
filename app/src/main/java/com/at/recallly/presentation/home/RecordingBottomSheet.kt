@@ -50,8 +50,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,6 +65,7 @@ private const val SILENCE_TIMEOUT_SECONDS = 4
 @Composable
 fun RecordingBottomSheet(
     recordingState: RecordingState,
+    speechLanguage: String,
     onStopRecording: (transcript: String) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -159,7 +162,7 @@ fun RecordingBottomSheet(
                                     RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                                     RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
                                 )
-                                putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+                                putExtra(RecognizerIntent.EXTRA_LANGUAGE, speechLanguage)
                                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                                 putExtra(
@@ -290,9 +293,9 @@ fun RecordingBottomSheet(
                     Text(
                         text = when {
                             silenceCountdown != null && silenceCountdown!! > 0 ->
-                                "Stopping in ${silenceCountdown}s..."
-                            silenceCountdown == 0 -> "Stopping..."
-                            else -> "Listening..."
+                                stringResource(R.string.recording_stopping_in, silenceCountdown!!)
+                            silenceCountdown == 0 -> stringResource(R.string.recording_stopping)
+                            else -> stringResource(R.string.recording_listening)
                         },
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
@@ -341,8 +344,9 @@ fun RecordingBottomSheet(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Live transcript
+                    val startSpeakingText = stringResource(R.string.recording_start_speaking)
                     val displayText = if (accumulatedTranscript.isBlank() && partialText.isBlank()) {
-                        "Start speaking..."
+                        startSpeakingText
                     } else {
                         val full = accumulatedTranscript
                         if (partialText.isNotBlank()) {
@@ -392,7 +396,7 @@ fun RecordingBottomSheet(
                             )
                             Spacer(modifier = Modifier.size(8.dp))
                             Text(
-                                text = "Cancel",
+                                text = stringResource(R.string.common_cancel),
                                 style = MaterialTheme.typography.labelLarge
                             )
                         }
@@ -414,7 +418,7 @@ fun RecordingBottomSheet(
                             )
                             Spacer(modifier = Modifier.size(8.dp))
                             Text(
-                                text = "Stop",
+                                text = stringResource(R.string.recording_stop),
                                 style = MaterialTheme.typography.labelLarge
                             )
                         }
@@ -433,7 +437,7 @@ fun RecordingBottomSheet(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "Extracting data...",
+                        text = stringResource(R.string.recording_extracting),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -442,7 +446,7 @@ fun RecordingBottomSheet(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "AI is analyzing your voice note",
+                        text = stringResource(R.string.recording_analyzing),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center

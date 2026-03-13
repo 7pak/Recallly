@@ -28,8 +28,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 import com.at.recallly.domain.model.Persona
+import com.at.recallly.presentation.util.localizedDescription
+import com.at.recallly.presentation.util.localizedDisplayName
 
 @Composable
 fun PersonaSelectionScreen(
@@ -47,13 +51,13 @@ fun PersonaSelectionScreen(
         Spacer(modifier = Modifier.height(80.dp))
 
         Text(
-            text = "What's Your Role?",
+            text = stringResource(R.string.persona_whats_your_role),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Select your profession so we can tailor the AI to your needs",
+            text = stringResource(R.string.persona_select_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -89,7 +93,7 @@ fun PersonaSelectionScreen(
             )
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.common_continue),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -141,12 +145,12 @@ private fun PersonaCard(
             )
             Column {
                 Text(
-                    text = persona.displayName,
+                    text = persona.localizedDisplayName(),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = persona.description,
+                    text = persona.localizedDescription(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

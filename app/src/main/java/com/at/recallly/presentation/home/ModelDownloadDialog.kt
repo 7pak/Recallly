@@ -18,9 +18,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 import com.at.recallly.data.whisper.WhisperModelManager
 import com.at.recallly.domain.model.ModelDownloadState
 
@@ -46,7 +48,7 @@ fun ModelDownloadDialog(
         },
         title = {
             Text(
-                text = "Offline Voice Model",
+                text = stringResource(R.string.settings_offline_model),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold
             )
@@ -54,7 +56,7 @@ fun ModelDownloadDialog(
         text = {
             Column {
                 Text(
-                    text = "Download the speech recognition model (~${WhisperModelManager.MODEL_SIZE_MB} MB) to record voice notes without internet.",
+                    text = stringResource(R.string.home_model_prompt_desc, WhisperModelManager.MODEL_SIZE_MB),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -93,7 +95,7 @@ fun ModelDownloadDialog(
                 enabled = !isDownloading,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(if (isDownloading) "Downloading..." else "Download")
+                Text(if (isDownloading) stringResource(R.string.home_model_downloading) else stringResource(R.string.home_model_download_now))
             }
         },
         dismissButton = {
@@ -102,7 +104,7 @@ fun ModelDownloadDialog(
                     onClick = onDismiss,
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Not Now")
+                    Text(stringResource(R.string.home_model_maybe_later))
                 }
             }
         }

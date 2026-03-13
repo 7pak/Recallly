@@ -21,10 +21,11 @@ class GeminiExtractionService(
     override suspend fun extractFields(
         transcript: String,
         persona: Persona,
-        fields: List<PersonaField>
+        fields: List<PersonaField>,
+        language: String
     ): Result<ExtractionResult> {
         return try {
-            val prompt = buildPrompt(transcript, persona, fields)
+            val prompt = buildPrompt(transcript, persona, fields, language)
             val response = generativeModel.generateContent(prompt)
             val text = response.text ?: return Result.Error(Exception("Empty response from AI"))
             parseResponse(text, fields)
@@ -37,7 +38,8 @@ class GeminiExtractionService(
     private fun buildPrompt(
         transcript: String,
         persona: Persona,
-        fields: List<PersonaField>
+        fields: List<PersonaField>,
+        language: String = "en"
     ): String {
         val fieldExamples = getFieldExamples(persona)
         val fieldTable = fields.joinToString("\n") { field ->
@@ -46,9 +48,20 @@ class GeminiExtractionService(
         }
         val example = getPersonaExample(persona)
 
+        val languageName = when (language) {
+            "ar" -> "Arabic"
+            "es" -> "Spanish"
+            "tr" -> "Turkish"
+            else -> "English"
+        }
+        val languageInstruction = if (language != "en") {
+            "\nIMPORTANT: The transcript below is in $languageName. Extract the data and return field values in the SAME language as the transcript. Write additional_notes in $languageName as well.\n"
+        } else ""
+
         return """
 You are an expert data extraction AI for a ${persona.displayName}.
 Your job is to carefully read a voice transcript and extract specific structured fields.
+$languageInstruction
 
 FIELDS TO EXTRACT (use the EXACT field IDs as JSON keys):
 | Field ID | Field Name | What to look for | Example value |

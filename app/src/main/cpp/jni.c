@@ -33,11 +33,12 @@ Java_com_at_recallly_data_whisper_WhisperLib_00024Companion_freeContext(
 JNIEXPORT void JNICALL
 Java_com_at_recallly_data_whisper_WhisperLib_00024Companion_fullTranscribe(
         JNIEnv *env, jobject thiz, jlong context_ptr, jint num_threads,
-        jfloatArray audio_data) {
+        jfloatArray audio_data, jstring language_str) {
     UNUSED(thiz);
     struct whisper_context *context = (struct whisper_context *) context_ptr;
     jfloat *audio_data_arr = (*env)->GetFloatArrayElements(env, audio_data, NULL);
     const jsize audio_data_length = (*env)->GetArrayLength(env, audio_data);
+    const char *lang = (*env)->GetStringUTFChars(env, language_str, NULL);
 
     struct whisper_full_params params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY);
     params.print_realtime   = false;
@@ -45,7 +46,7 @@ Java_com_at_recallly_data_whisper_WhisperLib_00024Companion_fullTranscribe(
     params.print_timestamps = false;
     params.print_special    = false;
     params.translate        = false;
-    params.language         = "en";
+    params.language         = lang;
     params.n_threads        = num_threads;
     params.offset_ms        = 0;
     params.no_context       = true;
@@ -53,13 +54,14 @@ Java_com_at_recallly_data_whisper_WhisperLib_00024Companion_fullTranscribe(
 
     whisper_reset_timings(context);
 
-    LOGI("Running whisper_full on %d samples", audio_data_length);
+    LOGI("Running whisper_full on %d samples with language=%s", audio_data_length, lang);
     if (whisper_full(context, params, audio_data_arr, audio_data_length) != 0) {
         LOGW("Failed to run whisper model");
     } else {
         whisper_print_timings(context);
     }
     (*env)->ReleaseFloatArrayElements(env, audio_data, audio_data_arr, JNI_ABORT);
+    (*env)->ReleaseStringUTFChars(env, language_str, lang);
 }
 
 JNIEXPORT jint JNICALL

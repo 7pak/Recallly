@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.at.recallly.core.result.Result
 import com.at.recallly.core.util.ConnectivityChecker
+import com.at.recallly.core.util.LanguageManager
 import com.at.recallly.data.local.datastore.PreferencesManager
 import com.at.recallly.data.whisper.AudioRecorder
 import com.at.recallly.domain.model.PersonaFields
@@ -11,11 +12,11 @@ import com.at.recallly.domain.model.VoiceNote
 import com.at.recallly.domain.repository.OnboardingRepository
 import com.at.recallly.domain.repository.WhisperRepository
 import com.at.recallly.domain.usecase.auth.GetCurrentUserUseCase
-import com.at.recallly.domain.usecase.auth.LogoutUseCase
 import com.at.recallly.domain.usecase.voice.ExtractFieldsUseCase
 import com.at.recallly.domain.usecase.voice.GetVoiceNotesUseCase
 import com.at.recallly.domain.usecase.voice.QueueExtractionUseCase
 import com.at.recallly.domain.usecase.voice.SaveVoiceNoteUseCase
+import com.at.recallly.domain.repository.VoiceNoteRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -33,7 +35,6 @@ import java.util.UUID
 class HomeViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val onboardingRepository: OnboardingRepository,
-    private val logoutUseCase: LogoutUseCase,
     private val extractFieldsUseCase: ExtractFieldsUseCase,
     private val saveVoiceNoteUseCase: SaveVoiceNoteUseCase,
     private val getVoiceNotesUseCase: GetVoiceNotesUseCase,
@@ -41,7 +42,8 @@ class HomeViewModel(
     private val whisperRepository: WhisperRepository,
     private val audioRecorder: AudioRecorder,
     private val preferencesManager: PreferencesManager,
-    private val queueExtractionUseCase: QueueExtractionUseCase
+    private val queueExtractionUseCase: QueueExtractionUseCase,
+    private val voiceNoteRepository: VoiceNoteRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -93,7 +95,10 @@ class HomeViewModel(
                     whisperModelState = _uiState.value.whisperModelState,
                     showModelDownloadDialog = _uiState.value.showModelDownloadDialog,
                     showInitialModelPrompt = _uiState.value.showInitialModelPrompt,
-                    isOfflineExtraction = _uiState.value.isOfflineExtraction
+                    isOfflineExtraction = _uiState.value.isOfflineExtraction,
+                    selectedVoiceNote = _uiState.value.selectedVoiceNote,
+                    editingVoiceNote = _uiState.value.editingVoiceNote,
+                    editingFields = _uiState.value.editingFields
                 )
             }.collectLatest { state ->
                 _uiState.update { state }
@@ -104,6 +109,13 @@ class HomeViewModel(
         viewModelScope.launch {
             whisperRepository.downloadState.collect { downloadState ->
                 _uiState.update { it.copy(whisperModelState = downloadState) }
+            }
+        }
+
+        // Migrate from English-only model to multilingual model if needed
+        viewModelScope.launch {
+            if (whisperRepository.needsModelMigration()) {
+                whisperRepository.migrateModel()
             }
         }
 
@@ -247,10 +259,57 @@ class HomeViewModel(
 
             is HomeUiEvent.DeleteVoiceNote -> {
                 viewModelScope.launch {
+                    voiceNoteRepository.deleteVoiceNote(event.id)
                     _uiState.update { state ->
-                        state.copy(voiceNotes = state.voiceNotes.filter { it.id != event.id })
+                        state.copy(
+                            selectedVoiceNote = if (state.selectedVoiceNote?.id == event.id) null else state.selectedVoiceNote
+                        )
                     }
                 }
+            }
+
+            is HomeUiEvent.SelectVoiceNote -> {
+                val note = _uiState.value.voiceNotes.find { it.id == event.id }
+                _uiState.update { it.copy(selectedVoiceNote = note) }
+            }
+
+            is HomeUiEvent.DismissVoiceNoteDetail -> {
+                _uiState.update { it.copy(selectedVoiceNote = null, editingVoiceNote = null, editingFields = emptyMap()) }
+            }
+
+            is HomeUiEvent.EditVoiceNote -> {
+                val note = _uiState.value.selectedVoiceNote ?: return
+                val configuredFields = _uiState.value.selectedFields
+                val editFields = mutableMapOf<String, String>()
+                configuredFields.forEach { field ->
+                    editFields[field.id] = note.extractedFields[field.id] ?: ""
+                }
+                _uiState.update { it.copy(editingVoiceNote = note, editingFields = editFields) }
+            }
+
+            is HomeUiEvent.UpdateNoteField -> {
+                _uiState.update { state ->
+                    state.copy(editingFields = state.editingFields + (event.fieldId to event.value))
+                }
+            }
+
+            is HomeUiEvent.SaveNoteEdits -> {
+                val editing = _uiState.value.editingVoiceNote ?: return
+                val updatedNote = editing.copy(extractedFields = _uiState.value.editingFields)
+                viewModelScope.launch {
+                    voiceNoteRepository.updateVoiceNote(updatedNote)
+                    _uiState.update {
+                        it.copy(
+                            selectedVoiceNote = updatedNote,
+                            editingVoiceNote = null,
+                            editingFields = emptyMap()
+                        )
+                    }
+                }
+            }
+
+            is HomeUiEvent.CancelNoteEdits -> {
+                _uiState.update { it.copy(editingVoiceNote = null, editingFields = emptyMap()) }
             }
         }
     }
@@ -348,7 +407,10 @@ class HomeViewModel(
         _uiState.update { it.copy(recordingState = RecordingState.Transcribing) }
 
         viewModelScope.launch {
-            when (val result = whisperRepository.transcribe(samples)) {
+            val langCode = LanguageManager.getWhisperLanguageCode(
+                preferencesManager.appLanguage.first()
+            )
+            when (val result = whisperRepository.transcribe(samples, langCode)) {
                 is Result.Success -> {
                     val transcript = result.data.trim()
                     if (transcript.isBlank()) {
@@ -414,8 +476,9 @@ class HomeViewModel(
                 return@launch
             }
             val fields = _uiState.value.selectedFields
+            val language = preferencesManager.appLanguage.first()
 
-            when (val result = extractFieldsUseCase(transcript, persona, fields)) {
+            when (val result = extractFieldsUseCase(transcript, persona, fields, language)) {
                 is Result.Success -> {
                     _uiState.update {
                         it.copy(
@@ -472,9 +535,4 @@ class HomeViewModel(
         }
     }
 
-    fun logout() {
-        viewModelScope.launch {
-            logoutUseCase()
-        }
-    }
 }

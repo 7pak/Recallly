@@ -108,10 +108,25 @@ class WhisperModelManager(private val context: Context) {
         _downloadState.value = ModelDownloadState.NotDownloaded
     }
 
+    fun needsMigration(): Boolean {
+        val oldFile = File(modelDir, OLD_MODEL_FILENAME)
+        return oldFile.exists() && oldFile.length() > 0
+    }
+
+    suspend fun migrateFromEnglishModel() = withContext(Dispatchers.IO) {
+        val oldFile = File(modelDir, OLD_MODEL_FILENAME)
+        if (oldFile.exists()) {
+            oldFile.delete()
+            Timber.i("Deleted old English-only whisper model")
+        }
+        _downloadState.value = ModelDownloadState.NotDownloaded
+    }
+
     companion object {
-        const val MODEL_FILENAME = "ggml-base.en.bin"
+        const val MODEL_FILENAME = "ggml-base.bin"
         const val MODEL_SIZE_MB = 142
+        private const val OLD_MODEL_FILENAME = "ggml-base.en.bin"
         private const val MODEL_URL =
-            "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin"
+            "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
     }
 }

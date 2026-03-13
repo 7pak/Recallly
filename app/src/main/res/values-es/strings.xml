@@ -1,0 +1,282 @@
+<resources>
+    <string name="app_name">Recallly</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_confirm">Confirmar</string>
+    <string name="common_save">Guardar</string>
+    <string name="common_continue">Continuar</string>
+    <string name="common_back">Atrás</string>
+    <string name="common_or_continue_with">\u0020\u0020o continuar con\u0020\u0020</string>
+    <string name="common_email">Correo electrónico</string>
+    <string name="common_password">Contraseña</string>
+    <string name="common_hide_password">Ocultar contraseña</string>
+    <string name="common_show_password">Mostrar contraseña</string>
+    <string name="common_select_all">Seleccionar todo</string>
+    <string name="common_discard">Descartar</string>
+    <string name="common_not_now">Ahora no</string>
+
+    <!-- Login -->
+    <string name="login_welcome_back">Bienvenido de vuelta</string>
+    <string name="login_sign_in_to_continue">Inicia sesión para continuar</string>
+    <string name="login_log_in">Iniciar sesión</string>
+    <string name="login_continue_with_google">Continuar con Google</string>
+    <string name="login_no_account">¿No tienes una cuenta?</string>
+    <string name="login_sign_up">Registrarse</string>
+
+    <!-- Sign Up -->
+    <string name="signup_create_account">Crear cuenta</string>
+    <string name="signup_get_started">Comienza con Recallly</string>
+    <string name="signup_full_name">Nombre completo</string>
+    <string name="signup_confirm_password">Confirmar contraseña</string>
+    <string name="signup_sign_up">Registrarse</string>
+    <string name="signup_continue_with_google">Continuar con Google</string>
+    <string name="signup_already_have_account">¿Ya tienes una cuenta?</string>
+    <string name="signup_log_in">Iniciar sesión</string>
+
+    <!-- Validation Errors -->
+    <string name="error_email_required">El correo electrónico es obligatorio</string>
+    <string name="error_email_invalid">Formato de correo electrónico no válido</string>
+    <string name="error_password_required">La contraseña es obligatoria</string>
+    <string name="error_password_too_short">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="error_name_required">El nombre es obligatorio</string>
+    <string name="error_confirm_password">Por favor confirma tu contraseña</string>
+    <string name="error_passwords_mismatch">Las contraseñas no coinciden</string>
+    <string name="error_no_persona">No se ha seleccionado un perfil</string>
+    <string name="error_min_fields">Por favor selecciona al menos 3 campos</string>
+    <string name="error_min_workdays">Por favor selecciona al menos un día laboral</string>
+    <string name="error_end_after_start">La hora de fin debe ser posterior a la hora de inicio</string>
+
+    <!-- Persona Selection -->
+    <string name="persona_whats_your_role">¿Cuál es tu rol?</string>
+    <string name="persona_select_subtitle">Selecciona tu profesión para que podamos adaptar la IA a tus necesidades</string>
+
+    <!-- Persona Names -->
+    <string name="persona_sales_rep">Representante de ventas</string>
+    <string name="persona_sales_rep_desc">Rastrea negocios, clientes y seguimientos</string>
+    <string name="persona_field_engineer">Ingeniero de campo</string>
+    <string name="persona_field_engineer_desc">Registra visitas a sitios, equipos y problemas</string>
+    <string name="persona_insurance_adjuster">Ajustador de seguros</string>
+    <string name="persona_insurance_adjuster_desc">Documenta reclamaciones, daños e inspecciones</string>
+
+    <!-- PersonaField: Sales Rep -->
+    <string name="field_sr_client_name">Nombre y cargo del cliente</string>
+    <string name="field_sr_client_name_desc">Nombre completo y cargo</string>
+    <string name="field_sr_company">Nombre de la empresa</string>
+    <string name="field_sr_company_desc">Organización que representan</string>
+    <string name="field_sr_deal_value">Valor del negocio</string>
+    <string name="field_sr_deal_value_desc">Presupuesto o tamaño del contrato mencionado</string>
+    <string name="field_sr_pain_points">Puntos de dolor</string>
+    <string name="field_sr_pain_points_desc">Problemas que intentan resolver</string>
+    <string name="field_sr_interest_level">Nivel de interés</string>
+    <string name="field_sr_interest_level_desc">Inferido por IA: Frío, Tibio o Caliente</string>
+    <string name="field_sr_competitive">Mención de competidores</string>
+    <string name="field_sr_competitive_desc">Cualquier competidor discutido</string>
+    <string name="field_sr_next_action">Siguiente acción</string>
+    <string name="field_sr_next_action_desc">Siguiente paso acordado</string>
+    <string name="field_sr_followup_date">Fecha de seguimiento</string>
+    <string name="field_sr_followup_date_desc">Seguimiento programado para el calendario</string>
+
+    <!-- PersonaField: Field Engineer -->
+    <string name="field_fe_site_name">Nombre del sitio/ubicación</string>
+    <string name="field_fe_site_name_desc">Dónde se realiza el trabajo</string>
+    <string name="field_fe_asset_id">ID de activo/equipo</string>
+    <string name="field_fe_asset_id_desc">Etiqueta de máquina o sistema específico</string>
+    <string name="field_fe_issue_desc">Descripción del problema</string>
+    <string name="field_fe_issue_desc_desc">Detalles técnicos del problema</string>
+    <string name="field_fe_parts">Piezas necesarias</string>
+    <string name="field_fe_parts_desc">Hardware o herramientas necesarias</string>
+    <string name="field_fe_priority">Nivel de prioridad</string>
+    <string name="field_fe_priority_desc">Bajo, Medio, Alto o Emergencia</string>
+    <string name="field_fe_safety">Riesgos de seguridad</string>
+    <string name="field_fe_safety_desc">Riesgos identificados en el sitio</string>
+    <string name="field_fe_time_est">Tiempo estimado</string>
+    <string name="field_fe_time_est_desc">Duración esperada de la reparación</string>
+    <string name="field_fe_deadline">Fecha límite</string>
+    <string name="field_fe_deadline_desc">Cuándo debe estar operativo el sitio</string>
+
+    <!-- PersonaField: Insurance Adjuster -->
+    <string name="field_ia_policy">Número de póliza</string>
+    <string name="field_ia_policy_desc">Referencia de la reclamación</string>
+    <string name="field_ia_claimant">Nombre del reclamante</string>
+    <string name="field_ia_claimant_desc">Persona o empresa que presenta la reclamación</string>
+    <string name="field_ia_incident_type">Tipo de incidente</string>
+    <string name="field_ia_incident_type_desc">Incendio, Inundación, Colisión, Robo, etc.</string>
+    <string name="field_ia_damage">Evaluación de daños</string>
+    <string name="field_ia_damage_desc">Descripción estructurada de los daños</string>
+    <string name="field_ia_liability">Notas de responsabilidad</string>
+    <string name="field_ia_liability_desc">Evaluación de culpa según testimonios</string>
+    <string name="field_ia_repair_cost">Costo estimado de reparación</string>
+    <string name="field_ia_repair_cost_desc">Estimación verbal del ajustador</string>
+    <string name="field_ia_evidence">Evidencia recopilada</string>
+    <string name="field_ia_evidence_desc">Fotos, declaraciones de testigos, etc.</string>
+    <string name="field_ia_inspection_date">Fecha de inspección</string>
+    <string name="field_ia_inspection_date_desc">Hora oficial de la visita</string>
+
+    <!-- Field Selection -->
+    <string name="fields_choose_title">Elige tus campos</string>
+    <string name="fields_choose_subtitle">Selecciona lo que la IA extraerá de tus notas de voz</string>
+    <string name="fields_selected_count">%1$d de %2$d seleccionados (mínimo 3)</string>
+    <string name="fields_custom_title">Campos personalizados</string>
+    <string name="fields_custom_desc">Crea tus propios campos de extracción adaptados a tu flujo de trabajo</string>
+    <string name="fields_custom_pro">PRO</string>
+
+    <!-- Work Schedule -->
+    <string name="schedule_title">Configura tu horario laboral</string>
+    <string name="schedule_subtitle">Tu asistente de IA estará activo durante estas horas</string>
+    <string name="schedule_working_days">Días laborales</string>
+    <string name="schedule_working_hours">Horas laborales</string>
+    <string name="schedule_start">Inicio</string>
+    <string name="schedule_end">Fin</string>
+    <string name="schedule_select_time">Seleccionar hora de %1$s</string>
+    <string name="schedule_get_started">Comenzar</string>
+    <string name="schedule_no_days">No se han seleccionado días laborales</string>
+    <string name="schedule_every_day">Todos los días</string>
+    <string name="schedule_mon_fri">Lun \u2013 Vie</string>
+
+    <!-- Data Consent -->
+    <string name="consent_title">Tus datos, tu control</string>
+    <string name="consent_subtitle">Creemos que tus datos de negocio te pertenecen.\nAsí es como los mantenemos seguros.</string>
+    <string name="consent_local_title">Solo almacenamiento local</string>
+    <string name="consent_local_desc">Todas tus notas de voz y datos extraídos se almacenan localmente en este dispositivo. Nada se sube a ningún servidor.</string>
+    <string name="consent_drive_title">Copia de seguridad en Google Drive</string>
+    <string name="consent_drive_desc">Opcionalmente respalda tus datos en tu Google Drive personal. Si cambias de dispositivo o reinstalas, tus datos se restaurarán automáticamente.</string>
+    <string name="consent_export_title">Exportar en cualquier momento</string>
+    <string name="consent_export_desc">Puedes exportar todos tus datos de clientes en cualquier momento desde los ajustes de la aplicación antes de desinstalar.</string>
+    <string name="consent_accept">Entendido, vamos</string>
+
+    <!-- Home -->
+    <string name="home_greeting_morning">Buenos días</string>
+    <string name="home_greeting_afternoon">Buenas tardes</string>
+    <string name="home_greeting_evening">Buenas noches</string>
+    <string name="home_tab_home">Inicio</string>
+    <string name="home_tab_my_data">Mis datos</string>
+    <string name="home_record_note">Grabar nota de voz</string>
+    <string name="home_todays_summary">Resumen de hoy</string>
+    <string name="home_notes_today">%1$d notas hoy</string>
+    <string name="home_recent_notes">Notas recientes</string>
+    <string name="home_no_notes_title">Aún no hay notas</string>
+    <string name="home_no_notes_subtitle">Toca el micrófono para grabar tu primera nota de voz</string>
+    <string name="home_filter_all">Todas</string>
+    <string name="home_filter_today">Hoy</string>
+    <string name="home_filter_this_week">Esta semana</string>
+    <string name="home_no_notes_found">No se encontraron notas de voz</string>
+    <string name="home_no_notes_found_subtitle">Graba una nota para comenzar</string>
+    <string name="home_extraction_queued">Extracción en cola</string>
+    <string name="home_fields_captured">%1$d de %2$d campos capturados</string>
+
+    <!-- Home: Model Download -->
+    <string name="home_model_prompt_title">¿Activar grabación sin conexión?</string>
+    <string name="home_model_prompt_desc">Descarga un modelo de reconocimiento de voz (~%1$d MB) para grabar notas de voz sin internet. Siempre puedes descargarlo después desde los ajustes.</string>
+    <string name="home_model_download_now">Descargar ahora</string>
+    <string name="home_model_maybe_later">Quizás después</string>
+    <string name="home_model_downloading">Descargando modelo de voz sin conexión…</string>
+    <string name="home_model_enable_offline">Activar grabación sin conexión</string>
+    <string name="home_model_download_failed">Descarga fallida — toca para reintentar</string>
+    <string name="home_model_download_ready">Descargar modelo (%1$d MB)</string>
+    <string name="home_model_downloaded">Descargado (%1$d MB)</string>
+    <string name="home_model_downloading_percent">Descargando %1$d%%…</string>
+    <string name="home_model_not_downloaded">No descargado (%1$d MB)</string>
+
+    <!-- Home: Recording UI -->
+    <string name="recording_listening">Escuchando…</string>
+    <string name="recording_stopping_in">Parando en %1$ds…</string>
+    <string name="recording_stopping">Parando…</string>
+    <string name="recording_start_speaking">Empieza a hablar…</string>
+    <string name="recording_stop">Parar</string>
+    <string name="recording_extracting">Extrayendo datos…</string>
+    <string name="recording_analyzing">La IA está analizando tu nota de voz</string>
+    <string name="recording_recording_offline">Grabando (sin conexión)…</string>
+    <string name="recording_transcript_preview">La transcripción aparecerá cuando se detenga la grabación</string>
+    <string name="recording_transcribing">Transcribiendo audio…</string>
+    <string name="recording_processing_ai">Procesando tu grabación con IA en el dispositivo</string>
+    <string name="recording_duration_notice">Esto puede tardar de 1 a 5 minutos según la duración</string>
+
+    <!-- Extraction Result -->
+    <string name="extraction_review_title">Revisar datos extraídos</string>
+    <string name="extraction_review_subtitle">Revisa y edita los campos extraídos antes de guardar.</string>
+
+    <!-- Offline Transcript -->
+    <string name="offline_review_title">Revisa tu grabación</string>
+    <string name="offline_review_subtitle">Revisa la transcripción a continuación. Si se ve bien, guárdala y los campos se extraerán automáticamente cuando tengas conexión.</string>
+    <string name="offline_extraction_notice">Los campos se extraerán automáticamente cuando haya internet</string>
+    <string name="offline_save_and_queue">Guardar y poner en cola</string>
+
+    <!-- Home: Recording -->
+    <string name="home_no_speech">No se detectó voz. Por favor intenta de nuevo.</string>
+    <string name="home_recording_too_short">Grabación muy corta. Por favor intenta de nuevo.</string>
+    <string name="home_offline_saved">¡Nota de voz guardada! Los campos se extraerán cuando vuelvas a tener conexión.</string>
+    <string name="home_need_internet">Necesitas una conexión a internet para descargar el modelo de voz sin conexión.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_professional_type">Tipo de profesional</string>
+    <string name="settings_manage_fields">Gestionar campos</string>
+    <string name="settings_fields_selected">%1$d de %2$d campos seleccionados</string>
+    <string name="settings_work_schedule">Horario laboral</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_offline_model">Modelo de voz sin conexión</string>
+    <string name="settings_model_download_failed">Descarga fallida</string>
+    <string name="settings_logout">Cerrar sesión</string>
+    <string name="settings_logout_subtitle">Salir de tu cuenta</string>
+    <string name="settings_logout_confirm">¿Estás seguro de que quieres cerrar sesión? Tus datos permanecerán almacenados de forma segura en este dispositivo.</string>
+
+    <!-- Settings: Persona Selection -->
+    <string name="settings_change_persona">Cambiar tipo de profesional</string>
+    <string name="settings_save_choose_fields">Guardar y elegir campos</string>
+
+    <!-- Settings: Field Selection -->
+    <string name="settings_select_fields_for">Seleccionar campos para %1$s</string>
+    <string name="settings_manage_fields_title">Gestionar campos</string>
+
+    <!-- Settings: Work Schedule -->
+    <string name="settings_work_schedule_title">Horario laboral</string>
+
+    <!-- My Data -->
+    <string name="mydata_note_count">%1$d notas</string>
+    <string name="mydata_filter_this_month">Este mes</string>
+    <string name="mydata_sort_newest">Más recientes</string>
+    <string name="mydata_sort_oldest">Más antiguas</string>
+    <string name="mydata_load_more">Cargar %1$d más</string>
+    <string name="mydata_delete_title">Eliminar nota</string>
+    <string name="mydata_delete_message">Esta nota de voz y todos sus datos extraídos se eliminarán permanentemente.</string>
+    <string name="mydata_delete_confirm">Eliminar</string>
+
+    <!-- Voice Note Detail -->
+    <string name="detail_title">Detalles de la nota de voz</string>
+    <string name="detail_transcript">Transcripción</string>
+    <string name="detail_extracted_data">Datos extraídos</string>
+    <string name="detail_ai_tip">Consejo de IA</string>
+    <string name="detail_close">Cerrar</string>
+    <string name="detail_edit">Editar</string>
+    <string name="detail_save">Guardar cambios</string>
+    <string name="detail_cancel_edit">Cancelar</string>
+    <string name="detail_extraction_pending">Extracción en cola — los campos se llenarán cuando vuelvas a estar en línea</string>
+    <string name="detail_no_value">\u2014</string>
+
+    <!-- Export -->
+    <string name="settings_export_data">Exportar datos</string>
+    <string name="settings_export_subtitle">Descargar todas las notas como PDF</string>
+    <string name="export_exporting">Generando PDF…</string>
+    <string name="export_empty">No hay notas de voz para exportar</string>
+    <string name="export_error">Error al generar el PDF</string>
+    <string name="export_pdf_title">Exportación de notas de voz</string>
+    <string name="export_pdf_persona">Tipo profesional</string>
+    <string name="export_pdf_total_notes">Total de notas: %1$d</string>
+    <string name="export_pdf_date_range">%1$s – %2$s</string>
+    <string name="export_pdf_note_header">Nota #%1$d</string>
+    <string name="export_pdf_transcript">Transcripción</string>
+    <string name="export_pdf_extracted_fields">Datos extraídos</string>
+    <string name="export_pdf_ai_tip">Consejo de IA</string>
+    <string name="export_pdf_pending">Extracción pendiente</string>
+    <string name="export_pdf_no_value">N/D</string>
+    <string name="export_pdf_page">Página %1$d de %2$d</string>
+    <string name="export_pdf_generated">Generado por Recallly el %1$s</string>
+    <string name="export_pdf_selected_fields">Campos seleccionados</string>
+
+    <!-- Language Selection -->
+    <string name="language_model_note">Cambiar el idioma también cambiará el idioma del reconocimiento de voz y la extracción con IA.</string>
+    <string name="onboarding_language_title">Elige tu idioma</string>
+    <string name="onboarding_language_subtitle">Selecciona el idioma para la app y el reconocimiento de voz</string>
+    <string name="onboarding_language_note">Este idioma se usará tanto para la interfaz de la app como para el modelo de reconocimiento de voz. Puedes cambiarlo después en Ajustes.</string>
+</resources>

@@ -36,9 +36,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.at.recallly.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,8 +92,8 @@ fun WhisperRecordingBottomSheet(
                     Text(
                         text = when {
                             silenceCountdown != null && silenceCountdown > 0 ->
-                                "Stopping in ${silenceCountdown}s..."
-                            else -> "Recording (offline)..."
+                                stringResource(R.string.recording_stopping_in, silenceCountdown)
+                            else -> stringResource(R.string.recording_recording_offline)
                         },
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
@@ -165,7 +167,7 @@ fun WhisperRecordingBottomSheet(
                             modifier = Modifier.padding(16.dp)
                         ) {
                             Text(
-                                text = "Transcript will appear after recording stops",
+                                text = stringResource(R.string.recording_transcript_preview),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                 textAlign = TextAlign.Center
@@ -194,7 +196,7 @@ fun WhisperRecordingBottomSheet(
                             )
                             Spacer(modifier = Modifier.size(8.dp))
                             Text(
-                                text = "Cancel",
+                                text = stringResource(R.string.common_cancel),
                                 style = MaterialTheme.typography.labelLarge
                             )
                         }
@@ -216,7 +218,7 @@ fun WhisperRecordingBottomSheet(
                             )
                             Spacer(modifier = Modifier.size(8.dp))
                             Text(
-                                text = "Stop",
+                                text = stringResource(R.string.recording_stop),
                                 style = MaterialTheme.typography.labelLarge
                             )
                         }
@@ -235,7 +237,7 @@ fun WhisperRecordingBottomSheet(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "Transcribing audio...",
+                        text = stringResource(R.string.recording_transcribing),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -244,7 +246,7 @@ fun WhisperRecordingBottomSheet(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Processing your recording with on-device AI",
+                        text = stringResource(R.string.recording_processing_ai),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -253,7 +255,7 @@ fun WhisperRecordingBottomSheet(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "This may take 1–5 minutes depending on recording length",
+                        text = stringResource(R.string.recording_duration_notice),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         textAlign = TextAlign.Center

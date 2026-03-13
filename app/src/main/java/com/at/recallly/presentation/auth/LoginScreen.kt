@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,13 +59,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.at.recallly.R
+import com.at.recallly.core.util.LanguageManager
+import com.at.recallly.presentation.common.LanguageSelectorButton
 
 @Composable
 fun LoginScreen(
     uiState: AuthUiState,
     onEvent: (AuthUiEvent) -> Unit,
     onGoogleSignIn: () -> Unit,
-    onNavigateToSignUp: () -> Unit
+    onNavigateToSignUp: () -> Unit,
+    currentLanguageCode: String = LanguageManager.getCurrentLanguageCode(),
+    onLanguageChanged: (String) -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -88,24 +94,41 @@ fun LoginScreen(
         return emailError == null && passwordError == null
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .imePadding()
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(80.dp))
+    Box(modifier = Modifier.fillMaxSize()) {
+        LanguageSelectorButton(
+            currentLanguageCode = currentLanguageCode,
+            onLanguageSelected = onLanguageChanged,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 8.dp)
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(48.dp))
+
+        Image(
+            painter = painterResource(id = R.mipmap.recallly_ic_launcher_foreground),
+            contentDescription = "Recallly Logo",
+            modifier = Modifier.size(80.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Welcome Back",
+            text = stringResource(R.string.login_welcome_back),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Sign in to continue",
+            text = stringResource(R.string.login_sign_in_to_continue),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -144,7 +167,7 @@ fun LoginScreen(
                 if (uiState.error != null) onEvent(AuthUiEvent.ClearError)
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Email") },
+            label = { Text(stringResource(R.string.common_email)) },
             leadingIcon = {
                 Icon(Icons.Outlined.Email, contentDescription = null)
             },
@@ -179,7 +202,7 @@ fun LoginScreen(
                 if (uiState.error != null) onEvent(AuthUiEvent.ClearError)
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.common_password)) },
             leadingIcon = {
                 Icon(Icons.Outlined.Lock, contentDescription = null)
             },
@@ -188,7 +211,7 @@ fun LoginScreen(
                     Icon(
                         if (passwordVisible) Icons.Outlined.VisibilityOff
                         else Icons.Outlined.Visibility,
-                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                        contentDescription = if (passwordVisible) stringResource(R.string.common_hide_password) else stringResource(R.string.common_show_password)
                     )
                 }
             },
@@ -243,7 +266,7 @@ fun LoginScreen(
                 )
             } else {
                 Text(
-                    text = "Log In",
+                    text = stringResource(R.string.login_log_in),
                     style = MaterialTheme.typography.labelLarge
                 )
             }
@@ -258,7 +281,7 @@ fun LoginScreen(
         ) {
             HorizontalDivider(modifier = Modifier.weight(1f))
             Text(
-                text = "  or continue with  ",
+                text = stringResource(R.string.common_or_continue_with),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -283,7 +306,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Continue with Google",
+                text = stringResource(R.string.login_continue_with_google),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -296,18 +319,19 @@ fun LoginScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Don't have an account?",
+                text = stringResource(R.string.login_no_account),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             TextButton(onClick = onNavigateToSignUp) {
                 Text(
-                    text = "Sign Up",
+                    text = stringResource(R.string.login_sign_up),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
+        }
         }
     }
 }

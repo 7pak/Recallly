@@ -2,6 +2,7 @@ package com.at.recallly.core.di
 
 import androidx.credentials.CredentialManager
 import com.at.recallly.BuildConfig
+import com.at.recallly.data.export.PdfExportService
 import com.at.recallly.data.local.datastore.PreferencesManager
 import com.at.recallly.data.local.file.VoiceNoteFileStorage
 import com.at.recallly.core.util.ConnectivityChecker
@@ -18,6 +19,7 @@ import com.at.recallly.domain.usecase.auth.LoginWithEmailUseCase
 import com.at.recallly.domain.usecase.auth.LoginWithGoogleUseCase
 import com.at.recallly.domain.usecase.auth.LogoutUseCase
 import com.at.recallly.domain.usecase.auth.SignUpWithEmailUseCase
+import com.at.recallly.domain.usecase.export.ExportVoiceNotesPdfUseCase
 import com.at.recallly.domain.usecase.onboarding.GetFieldsForPersonaUseCase
 import com.at.recallly.domain.usecase.onboarding.SaveFieldsUseCase
 import com.at.recallly.domain.usecase.onboarding.SavePersonaUseCase
@@ -36,6 +38,7 @@ import com.at.recallly.domain.usecase.voice.TranscribeOfflineUseCase
 import com.at.recallly.presentation.auth.AuthViewModel
 import com.at.recallly.presentation.home.HomeViewModel
 import com.at.recallly.presentation.onboarding.OnboardingViewModel
+import com.at.recallly.presentation.settings.SettingsViewModel
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.runBlocking
@@ -102,6 +105,10 @@ val appModule = module {
     factory { SaveFieldsUseCase(get()) }
     factory { SaveScheduleUseCase(get()) }
 
+    // Export
+    single { PdfExportService(get()) }
+    factory { ExportVoiceNotesPdfUseCase(get(), get(), get(), get(), get()) }
+
     // Use Cases — Voice
     factory { ExtractFieldsUseCase(get()) }
     factory { SaveVoiceNoteUseCase(get()) }
@@ -113,4 +120,5 @@ val appModule = module {
     viewModel { AuthViewModel(get(), get(), get(), get(), get()) }
     viewModel { OnboardingViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { HomeViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { SettingsViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
 }

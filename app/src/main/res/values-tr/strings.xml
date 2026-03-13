@@ -1,0 +1,282 @@
+<resources>
+    <string name="app_name">Recallly</string>
+
+    <!-- Common -->
+    <string name="common_cancel">İptal</string>
+    <string name="common_confirm">Onayla</string>
+    <string name="common_save">Kaydet</string>
+    <string name="common_continue">Devam</string>
+    <string name="common_back">Geri</string>
+    <string name="common_or_continue_with">\u0020\u0020veya şununla devam et\u0020\u0020</string>
+    <string name="common_email">E-posta</string>
+    <string name="common_password">Şifre</string>
+    <string name="common_hide_password">Şifreyi gizle</string>
+    <string name="common_show_password">Şifreyi göster</string>
+    <string name="common_select_all">Tümünü seç</string>
+    <string name="common_discard">İptal et</string>
+    <string name="common_not_now">Şimdi değil</string>
+
+    <!-- Login -->
+    <string name="login_welcome_back">Tekrar hoş geldiniz</string>
+    <string name="login_sign_in_to_continue">Devam etmek için giriş yapın</string>
+    <string name="login_log_in">Giriş Yap</string>
+    <string name="login_continue_with_google">Google ile devam et</string>
+    <string name="login_no_account">Hesabınız yok mu?</string>
+    <string name="login_sign_up">Kayıt Ol</string>
+
+    <!-- Sign Up -->
+    <string name="signup_create_account">Hesap Oluştur</string>
+    <string name="signup_get_started">Recallly ile başlayın</string>
+    <string name="signup_full_name">Ad Soyad</string>
+    <string name="signup_confirm_password">Şifreyi onayla</string>
+    <string name="signup_sign_up">Kayıt Ol</string>
+    <string name="signup_continue_with_google">Google ile devam et</string>
+    <string name="signup_already_have_account">Zaten bir hesabınız var mı?</string>
+    <string name="signup_log_in">Giriş Yap</string>
+
+    <!-- Validation Errors -->
+    <string name="error_email_required">E-posta gereklidir</string>
+    <string name="error_email_invalid">Geçersiz e-posta formatı</string>
+    <string name="error_password_required">Şifre gereklidir</string>
+    <string name="error_password_too_short">Şifre en az 6 karakter olmalıdır</string>
+    <string name="error_name_required">Ad gereklidir</string>
+    <string name="error_confirm_password">Lütfen şifrenizi onaylayın</string>
+    <string name="error_passwords_mismatch">Şifreler eşleşmiyor</string>
+    <string name="error_no_persona">Uzmanlık seçilmedi</string>
+    <string name="error_min_fields">Lütfen en az 3 alan seçin</string>
+    <string name="error_min_workdays">Lütfen en az bir iş günü seçin</string>
+    <string name="error_end_after_start">Bitiş saati başlangıç saatinden sonra olmalıdır</string>
+
+    <!-- Persona Selection -->
+    <string name="persona_whats_your_role">Rolünüz nedir?</string>
+    <string name="persona_select_subtitle">Yapay zekayı ihtiyaçlarınıza göre uyarlayabilmemiz için mesleğinizi seçin</string>
+
+    <!-- Persona Names -->
+    <string name="persona_sales_rep">Satış Temsilcisi</string>
+    <string name="persona_sales_rep_desc">Anlaşmaları, müşterileri ve takipleri izleyin</string>
+    <string name="persona_field_engineer">Saha Mühendisi</string>
+    <string name="persona_field_engineer_desc">Saha ziyaretlerini, ekipmanları ve sorunları kaydedin</string>
+    <string name="persona_insurance_adjuster">Sigorta Eksperi</string>
+    <string name="persona_insurance_adjuster_desc">Hasarları, zararları ve incelemeleri belgeleyin</string>
+
+    <!-- PersonaField: Sales Rep -->
+    <string name="field_sr_client_name">Müşteri Adı ve Unvanı</string>
+    <string name="field_sr_client_name_desc">Tam ad ve iş unvanı</string>
+    <string name="field_sr_company">Şirket Adı</string>
+    <string name="field_sr_company_desc">Temsil ettikleri kuruluş</string>
+    <string name="field_sr_deal_value">Anlaşma Değeri</string>
+    <string name="field_sr_deal_value_desc">Bahsedilen bütçe veya sözleşme büyüklüğü</string>
+    <string name="field_sr_pain_points">Sorunlu Noktalar</string>
+    <string name="field_sr_pain_points_desc">Çözmeye çalıştıkları sorunlar</string>
+    <string name="field_sr_interest_level">İlgi Düzeyi</string>
+    <string name="field_sr_interest_level_desc">Yapay zeka tahmini: Soğuk, Ilık veya Sıcak</string>
+    <string name="field_sr_competitive">Rakip Bahsi</string>
+    <string name="field_sr_competitive_desc">Tartışılan rakipler</string>
+    <string name="field_sr_next_action">Sonraki Adım</string>
+    <string name="field_sr_next_action_desc">Üzerinde anlaşılan sonraki adım</string>
+    <string name="field_sr_followup_date">Takip Tarihi</string>
+    <string name="field_sr_followup_date_desc">Takvim için planlanan takip</string>
+
+    <!-- PersonaField: Field Engineer -->
+    <string name="field_fe_site_name">Saha/Konum Adı</string>
+    <string name="field_fe_site_name_desc">İşin yapıldığı yer</string>
+    <string name="field_fe_asset_id">Varlık/Ekipman Kimliği</string>
+    <string name="field_fe_asset_id_desc">Belirli makine veya sistem etiketi</string>
+    <string name="field_fe_issue_desc">Sorun Açıklaması</string>
+    <string name="field_fe_issue_desc_desc">Sorunun teknik detayları</string>
+    <string name="field_fe_parts">Gerekli Parçalar</string>
+    <string name="field_fe_parts_desc">Gereken donanım veya araçlar</string>
+    <string name="field_fe_priority">Öncelik Düzeyi</string>
+    <string name="field_fe_priority_desc">Düşük, Orta, Yüksek veya Acil</string>
+    <string name="field_fe_safety">Güvenlik Riskleri</string>
+    <string name="field_fe_safety_desc">Sahada tespit edilen riskler</string>
+    <string name="field_fe_time_est">Tahmini Süre</string>
+    <string name="field_fe_time_est_desc">Onarım için beklenen süre</string>
+    <string name="field_fe_deadline">Son Tarih</string>
+    <string name="field_fe_deadline_desc">Sahanın ne zaman çalışır durumda olması gerektiği</string>
+
+    <!-- PersonaField: Insurance Adjuster -->
+    <string name="field_ia_policy">Poliçe Numarası</string>
+    <string name="field_ia_policy_desc">Hasar talebi referansı</string>
+    <string name="field_ia_claimant">Talep Sahibi Adı</string>
+    <string name="field_ia_claimant_desc">Başvuran kişi veya işletme</string>
+    <string name="field_ia_incident_type">Olay Türü</string>
+    <string name="field_ia_incident_type_desc">Yangın, Sel, Çarpışma, Hırsızlık vb.</string>
+    <string name="field_ia_damage">Hasar Değerlendirmesi</string>
+    <string name="field_ia_damage_desc">Yapılandırılmış hasar açıklaması</string>
+    <string name="field_ia_liability">Sorumluluk Notları</string>
+    <string name="field_ia_liability_desc">İfadelerden kusur değerlendirmesi</string>
+    <string name="field_ia_repair_cost">Tahmini Onarım Maliyeti</string>
+    <string name="field_ia_repair_cost_desc">Eksperin sözlü tahmini</string>
+    <string name="field_ia_evidence">Toplanan Kanıtlar</string>
+    <string name="field_ia_evidence_desc">Fotoğraflar, tanık ifadeleri vb.</string>
+    <string name="field_ia_inspection_date">İnceleme Tarihi</string>
+    <string name="field_ia_inspection_date_desc">Ziyaretin resmi zamanı</string>
+
+    <!-- Field Selection -->
+    <string name="fields_choose_title">Alanlarınızı Seçin</string>
+    <string name="fields_choose_subtitle">Yapay zekanın sesli notlarınızdan neyi çıkaracağını belirleyin</string>
+    <string name="fields_selected_count">%1$d / %2$d seçildi (en az 3)</string>
+    <string name="fields_custom_title">Özel Alanlar</string>
+    <string name="fields_custom_desc">İş akışınıza özel çıkarım alanları oluşturun</string>
+    <string name="fields_custom_pro">PRO</string>
+
+    <!-- Work Schedule -->
+    <string name="schedule_title">Çalışma Saatlerinizi Ayarlayın</string>
+    <string name="schedule_subtitle">Yapay zeka asistanınız bu saatlerde aktif olacak</string>
+    <string name="schedule_working_days">Çalışma Günleri</string>
+    <string name="schedule_working_hours">Çalışma Saatleri</string>
+    <string name="schedule_start">Başlangıç</string>
+    <string name="schedule_end">Bitiş</string>
+    <string name="schedule_select_time">%1$s saatini seçin</string>
+    <string name="schedule_get_started">Başla</string>
+    <string name="schedule_no_days">Çalışma günü seçilmedi</string>
+    <string name="schedule_every_day">Her gün</string>
+    <string name="schedule_mon_fri">Pzt \u2013 Cum</string>
+
+    <!-- Data Consent -->
+    <string name="consent_title">Verileriniz, Sizin Kontrolünüzde</string>
+    <string name="consent_subtitle">İş verilerinizin size ait olduğuna inanıyoruz.\nOnları nasıl güvende tuttuğumuzu öğrenin.</string>
+    <string name="consent_local_title">Yalnızca Yerel Depolama</string>
+    <string name="consent_local_desc">Tüm sesli notlarınız ve çıkarılan veriler bu cihazda yerel olarak depolanır. Hiçbir şey herhangi bir sunucuya yüklenmez.</string>
+    <string name="consent_drive_title">Google Drive Yedekleme</string>
+    <string name="consent_drive_desc">İsteğe bağlı olarak verilerinizi kişisel Google Drive\'ınıza yedekleyin. Cihaz değiştirirseniz veya yeniden yüklerseniz, verileriniz otomatik olarak geri yüklenir.</string>
+    <string name="consent_export_title">İstediğiniz Zaman Dışa Aktarın</string>
+    <string name="consent_export_desc">Kaldırmadan önce uygulama ayarlarından tüm müşteri verilerinizi istediğiniz zaman dışa aktarabilirsiniz.</string>
+    <string name="consent_accept">Anladım, Başlayalım</string>
+
+    <!-- Home -->
+    <string name="home_greeting_morning">Günaydın</string>
+    <string name="home_greeting_afternoon">İyi günler</string>
+    <string name="home_greeting_evening">İyi akşamlar</string>
+    <string name="home_tab_home">Ana Sayfa</string>
+    <string name="home_tab_my_data">Verilerim</string>
+    <string name="home_record_note">Sesli not kaydet</string>
+    <string name="home_todays_summary">Bugünün Özeti</string>
+    <string name="home_notes_today">Bugün %1$d not</string>
+    <string name="home_recent_notes">Son Notlar</string>
+    <string name="home_no_notes_title">Henüz not yok</string>
+    <string name="home_no_notes_subtitle">İlk sesli notunuzu kaydetmek için mikrofona dokunun</string>
+    <string name="home_filter_all">Tümü</string>
+    <string name="home_filter_today">Bugün</string>
+    <string name="home_filter_this_week">Bu Hafta</string>
+    <string name="home_no_notes_found">Sesli not bulunamadı</string>
+    <string name="home_no_notes_found_subtitle">Başlamak için bir not kaydedin</string>
+    <string name="home_extraction_queued">Çıkarım sıraya alındı</string>
+    <string name="home_fields_captured">%1$d / %2$d alan yakalandı</string>
+
+    <!-- Home: Model Download -->
+    <string name="home_model_prompt_title">Çevrimdışı Kayıt Etkinleştirilsin mi?</string>
+    <string name="home_model_prompt_desc">İnternetsiz sesli not kaydetmek için bir konuşma tanıma modeli (~%1$d MB) indirin. Daha sonra ayarlardan da indirebilirsiniz.</string>
+    <string name="home_model_download_now">Şimdi İndir</string>
+    <string name="home_model_maybe_later">Belki Sonra</string>
+    <string name="home_model_downloading">Çevrimdışı ses modeli indiriliyor…</string>
+    <string name="home_model_enable_offline">Çevrimdışı kaydı etkinleştir</string>
+    <string name="home_model_download_failed">İndirme başarısız — yeniden denemek için dokunun</string>
+    <string name="home_model_download_ready">Modeli indir (%1$d MB)</string>
+    <string name="home_model_downloaded">İndirildi (%1$d MB)</string>
+    <string name="home_model_downloading_percent">İndiriliyor %1$d%%…</string>
+    <string name="home_model_not_downloaded">İndirilmedi (%1$d MB)</string>
+
+    <!-- Home: Recording UI -->
+    <string name="recording_listening">Dinleniyor…</string>
+    <string name="recording_stopping_in">%1$d saniye içinde durduruluyor…</string>
+    <string name="recording_stopping">Durduruluyor…</string>
+    <string name="recording_start_speaking">Konuşmaya başlayın…</string>
+    <string name="recording_stop">Durdur</string>
+    <string name="recording_extracting">Veriler çıkarılıyor…</string>
+    <string name="recording_analyzing">Yapay zeka sesli notunuzu analiz ediyor</string>
+    <string name="recording_recording_offline">Kaydediliyor (çevrimdışı)…</string>
+    <string name="recording_transcript_preview">Kayıt durduğunda metin görünecektir</string>
+    <string name="recording_transcribing">Ses yazıya dönüştürülüyor…</string>
+    <string name="recording_processing_ai">Kaydınız cihaz üzerindeki yapay zeka ile işleniyor</string>
+    <string name="recording_duration_notice">Bu işlem kayıt süresine bağlı olarak 1–5 dakika sürebilir</string>
+
+    <!-- Extraction Result -->
+    <string name="extraction_review_title">Çıkarılan verileri inceleyin</string>
+    <string name="extraction_review_subtitle">Kaydetmeden önce çıkarılan alanları inceleyin ve düzenleyin.</string>
+
+    <!-- Offline Transcript -->
+    <string name="offline_review_title">Kaydınızı inceleyin</string>
+    <string name="offline_review_subtitle">Aşağıdaki metni kontrol edin. İyi görünüyorsa kaydedin, internet bağlantınız olduğunda alanlar otomatik olarak çıkarılacaktır.</string>
+    <string name="offline_extraction_notice">İnternet bağlantısı olduğunda alanlar otomatik olarak çıkarılacaktır</string>
+    <string name="offline_save_and_queue">Kaydet ve sıraya ekle</string>
+
+    <!-- Home: Recording -->
+    <string name="home_no_speech">Konuşma algılanmadı. Lütfen tekrar deneyin.</string>
+    <string name="home_recording_too_short">Kayıt çok kısa. Lütfen tekrar deneyin.</string>
+    <string name="home_offline_saved">Sesli not kaydedildi! Alanlar internete bağlandığınızda çıkarılacak.</string>
+    <string name="home_need_internet">Çevrimdışı ses modelini indirmek için internet bağlantısı gereklidir.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_professional_type">Uzmanlık Türü</string>
+    <string name="settings_manage_fields">Alanları Yönet</string>
+    <string name="settings_fields_selected">%1$d / %2$d alan seçildi</string>
+    <string name="settings_work_schedule">Çalışma Programı</string>
+    <string name="settings_language">Dil</string>
+    <string name="settings_offline_model">Çevrimdışı Ses Modeli</string>
+    <string name="settings_model_download_failed">İndirme başarısız</string>
+    <string name="settings_logout">Çıkış Yap</string>
+    <string name="settings_logout_subtitle">Hesabınızdan çıkış yapın</string>
+    <string name="settings_logout_confirm">Çıkış yapmak istediğinizden emin misiniz? Verileriniz bu cihazda güvenle saklanmaya devam edecek.</string>
+
+    <!-- Settings: Persona Selection -->
+    <string name="settings_change_persona">Uzmanlık Türünü Değiştir</string>
+    <string name="settings_save_choose_fields">Kaydet ve Alanları Seç</string>
+
+    <!-- Settings: Field Selection -->
+    <string name="settings_select_fields_for">%1$s için alan seçin</string>
+    <string name="settings_manage_fields_title">Alanları Yönet</string>
+
+    <!-- Settings: Work Schedule -->
+    <string name="settings_work_schedule_title">Çalışma Programı</string>
+
+    <!-- My Data -->
+    <string name="mydata_note_count">%1$d not</string>
+    <string name="mydata_filter_this_month">Bu Ay</string>
+    <string name="mydata_sort_newest">En yeni</string>
+    <string name="mydata_sort_oldest">En eski</string>
+    <string name="mydata_load_more">%1$d daha yükle</string>
+    <string name="mydata_delete_title">Notu Sil</string>
+    <string name="mydata_delete_message">Bu sesli not ve tüm çıkarılan verileri kalıcı olarak silinecektir.</string>
+    <string name="mydata_delete_confirm">Sil</string>
+
+    <!-- Voice Note Detail -->
+    <string name="detail_title">Sesli Not Detayları</string>
+    <string name="detail_transcript">Transkript</string>
+    <string name="detail_extracted_data">Çıkarılan Veriler</string>
+    <string name="detail_ai_tip">Yapay Zeka İpucu</string>
+    <string name="detail_close">Kapat</string>
+    <string name="detail_edit">Düzenle</string>
+    <string name="detail_save">Değişiklikleri Kaydet</string>
+    <string name="detail_cancel_edit">İptal</string>
+    <string name="detail_extraction_pending">Çıkarım sırada — alanlar tekrar çevrimiçi olduğunuzda doldurulacak</string>
+    <string name="detail_no_value">\u2014</string>
+
+    <!-- Export -->
+    <string name="settings_export_data">Verileri dışa aktar</string>
+    <string name="settings_export_subtitle">Tüm notları PDF olarak indir</string>
+    <string name="export_exporting">PDF oluşturuluyor…</string>
+    <string name="export_empty">Dışa aktarılacak sesli not yok</string>
+    <string name="export_error">PDF oluşturulamadı</string>
+    <string name="export_pdf_title">Sesli not dışa aktarımı</string>
+    <string name="export_pdf_persona">Profesyonel tür</string>
+    <string name="export_pdf_total_notes">Toplam not: %1$d</string>
+    <string name="export_pdf_date_range">%1$s – %2$s</string>
+    <string name="export_pdf_note_header">Not #%1$d</string>
+    <string name="export_pdf_transcript">Transkript</string>
+    <string name="export_pdf_extracted_fields">Çıkarılan veriler</string>
+    <string name="export_pdf_ai_tip">Yapay zeka ipucu</string>
+    <string name="export_pdf_pending">Çıkarma beklemede</string>
+    <string name="export_pdf_no_value">Yok</string>
+    <string name="export_pdf_page">Sayfa %1$d / %2$d</string>
+    <string name="export_pdf_generated">Recallly tarafından %1$s tarihinde oluşturuldu</string>
+    <string name="export_pdf_selected_fields">Seçilen alanlar</string>
+
+    <!-- Language Selection -->
+    <string name="language_model_note">Dili değiştirmek, ses tanıma ve yapay zeka çıkarım dilini de değiştirecektir.</string>
+    <string name="onboarding_language_title">Dilinizi Seçin</string>
+    <string name="onboarding_language_subtitle">Uygulama ve ses tanıma için dili seçin</string>
+    <string name="onboarding_language_note">Bu dil hem uygulama arayüzü hem de ses tanıma modeli için kullanılacaktır. Daha sonra Ayarlar\'dan değiştirebilirsiniz.</string>
+</resources>
