@@ -59,7 +59,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-private const val SILENCE_TIMEOUT_SECONDS = 4
+private const val SILENCE_TIMEOUT_SECONDS = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

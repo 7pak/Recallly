@@ -5,6 +5,7 @@
     <string name="common_cancel">İptal</string>
     <string name="common_confirm">Onayla</string>
     <string name="common_save">Kaydet</string>
+    <string name="common_delete">Sil</string>
     <string name="common_continue">Devam</string>
     <string name="common_back">Geri</string>
     <string name="common_or_continue_with">\u0020\u0020veya şununla devam et\u0020\u0020</string>
@@ -120,6 +121,16 @@
     <string name="fields_custom_title">Özel Alanlar</string>
     <string name="fields_custom_desc">İş akışınıza özel çıkarım alanları oluşturun</string>
     <string name="fields_custom_pro">PRO</string>
+    <string name="fields_custom_add">Özel Alan Ekle</string>
+    <string name="fields_custom_edit">Özel Alanı Düzenle</string>
+    <string name="fields_custom_name_label">Alan Adı</string>
+    <string name="fields_custom_name_placeholder">ör. Bütçe Aralığı</string>
+    <string name="fields_custom_desc_label">Açıklama</string>
+    <string name="fields_custom_desc_placeholder">Yapay zeka bu alan için ne çıkarmalı?</string>
+    <string name="fields_custom_name_required">Alan adı gerekli</string>
+    <string name="fields_custom_desc_required">Açıklama gerekli</string>
+    <string name="fields_custom_badge">Özel</string>
+    <string name="fields_custom_delete_confirm">Bu özel alan silinsin mi? Bu işlem geri alınamaz.</string>
 
     <!-- Work Schedule -->
     <string name="schedule_title">Çalışma Saatlerinizi Ayarlayın</string>
@@ -198,7 +209,7 @@
 
     <!-- Offline Transcript -->
     <string name="offline_review_title">Kaydınızı inceleyin</string>
-    <string name="offline_review_subtitle">Aşağıdaki metni kontrol edin. İyi görünüyorsa kaydedin, internet bağlantınız olduğunda alanlar otomatik olarak çıkarılacaktır.</string>
+    <string name="offline_review_subtitle">Aşağıdaki metni inceleyin ve düzenleyin. Hazır olduğunda kaydedin, internet bağlantınız olduğunda alanlar otomatik olarak çıkarılacaktır.</string>
     <string name="offline_extraction_notice">İnternet bağlantısı olduğunda alanlar otomatik olarak çıkarılacaktır</string>
     <string name="offline_save_and_queue">Kaydet ve sıraya ekle</string>
 
@@ -220,6 +231,14 @@
     <string name="settings_logout">Çıkış Yap</string>
     <string name="settings_logout_subtitle">Hesabınızdan çıkış yapın</string>
     <string name="settings_logout_confirm">Çıkış yapmak istediğinizden emin misiniz? Verileriniz bu cihazda güvenle saklanmaya devam edecek.</string>
+    <string name="settings_delete_data">Tüm Verileri Sil</string>
+    <string name="settings_delete_data_subtitle">Tüm sesli notları, alanları ve ayarları kaldır</string>
+    <string name="settings_delete_data_confirm">Tüm sesli notlarınız, özel alanlarınız ve ayarlarınız kalıcı olarak silinecektir. Hesabınız aktif kalacaktır. Bu işlem geri alınamaz.</string>
+    <string name="settings_deleting_data">Veriler siliniyor…</string>
+    <string name="settings_delete_account">Hesabı Sil</string>
+    <string name="settings_delete_account_subtitle">Hesabınızı ve tüm verilerinizi kalıcı olarak silin</string>
+    <string name="settings_delete_account_confirm">Hesabınız ve sesli notlar, özel alanlar ve ayarlar dahil tüm ilişkili veriler kalıcı olarak silinecektir. Bu işlem geri alınamaz.</string>
+    <string name="settings_deleting_account">Hesap siliniyor…</string>
 
     <!-- Settings: Persona Selection -->
     <string name="settings_change_persona">Uzmanlık Türünü Değiştir</string>
@@ -274,9 +293,56 @@
     <string name="export_pdf_generated">Recallly tarafından %1$s tarihinde oluşturuldu</string>
     <string name="export_pdf_selected_fields">Seçilen alanlar</string>
 
+    <!-- Calendar Sync -->
+    <string name="settings_calendar_sync">Takvim Senkronizasyonu</string>
+    <string name="settings_calendar_sync_subtitle">Tarih alanlarını Google Takviminize senkronize edin</string>
+    <string name="settings_calendar_sync_on">Etkin — tarihler takvimle senkronize edilecek</string>
+    <string name="calendar_add_title">Takvime Ekle</string>
+    <string name="calendar_confirm_title">Takvim Etkinliği Oluştur</string>
+    <string name="calendar_added_success">Etkinlik takviminize eklendi</string>
+    <string name="calendar_added">Takvime eklendi</string>
+    <string name="calendar_add_to">Takvime Ekle</string>
+    <string name="calendar_select_time">Saat Seçin</string>
+
+    <!-- Reminder Notifications -->
+    <string name="settings_reminder_notifications">Hatırlatma Bildirimleri</string>
+    <string name="settings_reminder_notifications_subtitle">Takvim etkinliklerinin zamanında bildirim alın</string>
+    <string name="settings_reminder_notifications_on">Etkin — etkinlik zamanlarında bildirim alacaksınız</string>
+    <string name="notification_channel_reminders">Etkinlik Hatırlatmaları</string>
+
+    <string name="fields_type_text">Metin</string>
+    <string name="fields_type_date">Tarih</string>
+
     <!-- Language Selection -->
     <string name="language_model_note">Dili değiştirmek, ses tanıma ve yapay zeka çıkarım dilini de değiştirecektir.</string>
     <string name="onboarding_language_title">Dilinizi Seçin</string>
     <string name="onboarding_language_subtitle">Uygulama ve ses tanıma için dili seçin</string>
     <string name="onboarding_language_note">Bu dil hem uygulama arayüzü hem de ses tanıma modeli için kullanılacaktır. Daha sonra Ayarlar\'dan değiştirebilirsiniz.</string>
+
+    <!-- Ads / Free Tier -->
+    <string name="ad_gate_title">Ücretsiz Notlar Tükendi</string>
+    <string name="ad_gate_message">Tüm %d ücretsiz yapay zeka sesli notunuzu kullandınız. Kayda devam etmek için kısa bir video izleyin.</string>
+    <string name="ad_gate_watch_button">Reklam İzle</string>
+    <string name="ad_gate_cancel_button">İptal</string>
+    <string name="ad_free_notes_remaining">%1$d / %2$d ücretsiz not</string>
+    <string name="ad_load_failed">Reklam yüklenemedi. Kayda devam edebilirsiniz.</string>
+    <string name="ad_ready_to_record_title">Kayda Hazır</string>
+    <string name="ad_ready_to_record_message">Reklam tamamlandı! Kayda başlamaya hazır olduğunuzda Başlat\'a dokunun.</string>
+    <string name="ad_ready_to_record_button">Kaydı Başlat</string>
+    <string name="premium_calendar_sync_used">Ücretsiz takvim senkronizasyonunuzu kullandınız. Sınırsız senkronizasyon için Premium\'a yükseltin.</string>
+    <string name="premium_notification_used">Ücretsiz bildiriminizi kullandınız. Sınırsız bildirimler için Premium\'a yükseltin.</string>
+
+    <!-- Premium Subscription -->
+    <string name="premium_title">Recallly Premium</string>
+    <string name="premium_benefit_notes">Sınırsız yapay zeka sesli notlar</string>
+    <string name="premium_benefit_no_ads">Reklamsız</string>
+    <string name="premium_benefit_calendar">Takvim senkronizasyonu</string>
+    <string name="premium_benefit_notifications">Hatırlatma bildirimleri</string>
+    <string name="premium_subscribe_button">Şimdi Abone Ol</string>
+    <string name="premium_active">Premium Aktif</string>
+    <string name="premium_limited_offer">SINIRLI TEKLİF</string>
+    <string name="premium_original_price">$8.99</string>
+    <string name="premium_offer_price">$4.99</string>
+    <string name="premium_per_month">/ay</string>
+    <string name="ad_gate_go_premium">Premium\'a Geç</string>
 </resources>

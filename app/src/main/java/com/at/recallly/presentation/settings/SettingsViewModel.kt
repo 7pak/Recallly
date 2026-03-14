@@ -5,13 +5,24 @@ import androidx.lifecycle.viewModelScope
 import com.at.recallly.core.util.ConnectivityChecker
 import com.at.recallly.core.util.LanguageManager
 import com.at.recallly.data.local.datastore.PreferencesManager
+import com.at.recallly.domain.model.ModelDownloadState
+import com.at.recallly.domain.model.Persona
 import com.at.recallly.domain.model.WorkSchedule
 import com.at.recallly.domain.repository.OnboardingRepository
 import com.at.recallly.domain.repository.WhisperRepository
 import com.at.recallly.domain.usecase.auth.GetCurrentUserUseCase
+import com.at.recallly.domain.usecase.auth.DeleteAccountUseCase
+import com.at.recallly.domain.usecase.auth.DeleteAllDataUseCase
 import com.at.recallly.domain.usecase.auth.LogoutUseCase
 import com.at.recallly.core.result.Result
+import com.at.recallly.domain.model.PersonaField
+import com.at.recallly.domain.repository.CustomFieldRepository
+import com.at.recallly.domain.repository.BillingRepository
+import com.at.recallly.domain.usecase.billing.ObservePremiumStatusUseCase
 import com.at.recallly.domain.usecase.export.ExportVoiceNotesPdfUseCase
+import com.at.recallly.domain.usecase.fields.AddCustomFieldUseCase
+import com.at.recallly.domain.usecase.fields.DeleteCustomFieldUseCase
+import com.at.recallly.domain.usecase.fields.UpdateCustomFieldUseCase
 import com.at.recallly.domain.usecase.onboarding.GetFieldsForPersonaUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,9 +31,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val onboardingRepository: OnboardingRepository,
@@ -31,7 +46,15 @@ class SettingsViewModel(
     private val whisperRepository: WhisperRepository,
     private val connectivityChecker: ConnectivityChecker,
     private val preferencesManager: PreferencesManager,
-    private val exportVoiceNotesPdfUseCase: ExportVoiceNotesPdfUseCase
+    private val exportVoiceNotesPdfUseCase: ExportVoiceNotesPdfUseCase,
+    private val observePremiumStatusUseCase: ObservePremiumStatusUseCase,
+    private val customFieldRepository: CustomFieldRepository,
+    private val addCustomFieldUseCase: AddCustomFieldUseCase,
+    private val updateCustomFieldUseCase: UpdateCustomFieldUseCase,
+    private val deleteCustomFieldUseCase: DeleteCustomFieldUseCase,
+    private val deleteAllDataUseCase: DeleteAllDataUseCase,
+    private val deleteAccountUseCase: DeleteAccountUseCase,
+    private val billingRepository: BillingRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -42,6 +65,10 @@ class SettingsViewModel(
     init {
         // Observe reactive data flows for main settings screen
         viewModelScope.launch {
+            val customFieldsFlow = onboardingRepository.selectedPersona.flatMapLatest { persona ->
+                persona?.let { customFieldRepository.getCustomFieldsForPersona(it) } ?: flowOf(emptyList())
+            }
+
             combine(
                 getCurrentUserUseCase().filterNotNull(),
                 onboardingRepository.selectedPersona,
@@ -50,13 +77,17 @@ class SettingsViewModel(
                 whisperRepository.downloadState
             ) { user, persona, fieldIds, schedule, modelState ->
                 currentUid = user.id
-                val totalFields = persona?.let { getFieldsForPersonaUseCase(it).size } ?: 0
+                SettingsHolder(user.id, persona, fieldIds, schedule, modelState)
+            }.combine(customFieldsFlow) { holder, customFields ->
+                val builtInCount = holder.persona?.let { getFieldsForPersonaUseCase(it).size } ?: 0
+                val totalFields = builtInCount + customFields.size
                 _uiState.value.copy(
-                    currentPersona = persona,
-                    selectedFieldCount = fieldIds.size,
+                    currentPersona = holder.persona,
+                    selectedFieldCount = holder.fieldIds.size,
                     totalFieldCount = totalFields,
-                    workSchedule = schedule,
-                    whisperModelState = modelState
+                    workSchedule = holder.schedule,
+                    whisperModelState = holder.modelState,
+                    customFields = customFields
                 )
             }.collectLatest { state ->
                 _uiState.update { current ->
@@ -74,22 +105,63 @@ class SettingsViewModel(
                         isExporting = current.isExporting,
                         exportedFileUri = current.exportedFileUri,
                         exportError = current.exportError,
-                        errorMessage = current.errorMessage
+                        errorMessage = current.errorMessage,
+                        isPremium = current.isPremium,
+                        calendarSyncEnabled = current.calendarSyncEnabled,
+                        showCustomFieldDialog = current.showCustomFieldDialog,
+                        editingCustomField = current.editingCustomField,
+                        isDeletingData = current.isDeletingData,
+                        dataDeleted = current.dataDeleted,
+                        isDeletingAccount = current.isDeletingAccount,
+                        accountDeleted = current.accountDeleted,
+                        subscriptionPrice = current.subscriptionPrice,
+                        isPurchasing = current.isPurchasing
                     )
                 }
             }
+        }
+
+        // Observe premium status
+        viewModelScope.launch {
+            observePremiumStatusUseCase().collect { status ->
+                _uiState.update { it.copy(isPremium = status.isPremium) }
+            }
+        }
+
+        // Observe calendar sync preference
+        viewModelScope.launch {
+            preferencesManager.calendarSyncEnabled.collect { enabled ->
+                _uiState.update { it.copy(calendarSyncEnabled = enabled) }
+            }
+        }
+
+        // Observe reminder notifications preference
+        viewModelScope.launch {
+            preferencesManager.reminderNotificationsEnabled.collect { enabled ->
+                _uiState.update { it.copy(reminderNotificationsEnabled = enabled) }
+            }
+        }
+
+        // Fetch subscription price
+        viewModelScope.launch {
+            try {
+                val price = billingRepository.getSubscriptionPrice()
+                _uiState.update { it.copy(subscriptionPrice = price) }
+            } catch (_: Exception) { }
         }
     }
 
     fun loadFieldsForCurrentPersona() {
         viewModelScope.launch {
             val persona = onboardingRepository.selectedPersona.first() ?: return@launch
-            val fields = getFieldsForPersonaUseCase(persona)
+            val builtInFields = getFieldsForPersonaUseCase(persona)
+            val customFields = customFieldRepository.getCustomFieldsForPersona(persona).first()
+            val allFields = builtInFields + customFields
             val savedFieldIds = onboardingRepository.selectedFieldIds.first()
             _uiState.update {
                 it.copy(
                     currentPersona = persona,
-                    availableFields = fields,
+                    availableFields = allFields,
                     selectedFieldIds = savedFieldIds,
                     validationError = null
                 )
@@ -100,11 +172,13 @@ class SettingsViewModel(
     fun loadFieldsForNewPersona() {
         viewModelScope.launch {
             val persona = onboardingRepository.selectedPersona.first() ?: return@launch
-            val fields = getFieldsForPersonaUseCase(persona)
+            val builtInFields = getFieldsForPersonaUseCase(persona)
+            val customFields = customFieldRepository.getCustomFieldsForPersona(persona).first()
+            val allFields = builtInFields + customFields
             _uiState.update {
                 it.copy(
                     currentPersona = persona,
-                    availableFields = fields,
+                    availableFields = allFields,
                     selectedFieldIds = emptySet(),
                     validationError = null
                 )
@@ -134,12 +208,8 @@ class SettingsViewModel(
             }
 
             is SettingsUiEvent.ConfirmPersonaChange -> {
-                val persona = _uiState.value.pendingPersona ?: return
-                viewModelScope.launch {
-                    onboardingRepository.savePersonaOnly(persona)
-                    onboardingRepository.saveFieldsOnly(emptySet())
-                    _uiState.update { it.copy(personaSaved = true) }
-                }
+                _uiState.value.pendingPersona ?: return
+                _uiState.update { it.copy(personaSaved = true) }
             }
 
             is SettingsUiEvent.ResetPersonaSaved -> {
@@ -173,6 +243,10 @@ class SettingsViewModel(
                     return
                 }
                 viewModelScope.launch {
+                    val persona = state.pendingPersona
+                    if (persona != null) {
+                        onboardingRepository.savePersonaOnly(persona)
+                    }
                     onboardingRepository.saveFieldsOnly(state.selectedFieldIds)
                     _uiState.update {
                         it.copy(fieldsSaved = true, validationError = null)
@@ -287,6 +361,113 @@ class SettingsViewModel(
                 LanguageManager.applyLanguage(event.code)
             }
 
+            // Custom Fields
+            is SettingsUiEvent.ShowAddCustomFieldDialog -> {
+                _uiState.update { it.copy(showCustomFieldDialog = true, editingCustomField = null) }
+            }
+
+            is SettingsUiEvent.ShowEditCustomFieldDialog -> {
+                _uiState.update { it.copy(showCustomFieldDialog = true, editingCustomField = event.field) }
+            }
+
+            is SettingsUiEvent.DismissCustomFieldDialog -> {
+                _uiState.update { it.copy(showCustomFieldDialog = false, editingCustomField = null) }
+            }
+
+            is SettingsUiEvent.AddCustomField -> {
+                val persona = _uiState.value.currentPersona ?: return
+                viewModelScope.launch {
+                    addCustomFieldUseCase(
+                        name = event.name,
+                        description = event.description,
+                        persona = persona,
+                        fieldType = event.fieldType
+                    )
+                    _uiState.update { it.copy(showCustomFieldDialog = false) }
+                    loadFieldsForCurrentPersona()
+                }
+            }
+
+            is SettingsUiEvent.EditCustomField -> {
+                val existing = _uiState.value.editingCustomField ?: return
+                viewModelScope.launch {
+                    updateCustomFieldUseCase(
+                        existing.copy(displayName = event.name, description = event.description, fieldType = event.fieldType)
+                    )
+                    _uiState.update { it.copy(showCustomFieldDialog = false, editingCustomField = null) }
+                    loadFieldsForCurrentPersona()
+                }
+            }
+
+            is SettingsUiEvent.DeleteCustomField -> {
+                viewModelScope.launch {
+                    deleteCustomFieldUseCase(event.fieldId)
+                    loadFieldsForCurrentPersona()
+                }
+            }
+
+            // Calendar Sync
+            is SettingsUiEvent.ToggleCalendarSync -> {
+                if (!_uiState.value.isPremium) return
+                viewModelScope.launch {
+                    val current = _uiState.value.calendarSyncEnabled
+                    preferencesManager.setCalendarSyncEnabled(!current)
+                }
+            }
+
+            is SettingsUiEvent.ToggleReminderNotifications -> {
+                if (!_uiState.value.isPremium) return
+                viewModelScope.launch {
+                    val current = _uiState.value.reminderNotificationsEnabled
+                    preferencesManager.setReminderNotificationsEnabled(!current)
+                }
+            }
+
+            // Data Management
+            is SettingsUiEvent.DeleteAllData -> {
+                _uiState.update { it.copy(isDeletingData = true) }
+                viewModelScope.launch {
+                    try {
+                        deleteAllDataUseCase()
+                        _uiState.update { it.copy(isDeletingData = false, dataDeleted = true) }
+                    } catch (e: Exception) {
+                        _uiState.update {
+                            it.copy(isDeletingData = false, errorMessage = e.message)
+                        }
+                    }
+                }
+            }
+
+            is SettingsUiEvent.DeleteAccount -> {
+                _uiState.update { it.copy(isDeletingAccount = true) }
+                viewModelScope.launch {
+                    try {
+                        deleteAccountUseCase()
+                        _uiState.update { it.copy(isDeletingAccount = false, accountDeleted = true) }
+                    } catch (e: Exception) {
+                        _uiState.update {
+                            it.copy(isDeletingAccount = false, errorMessage = e.message)
+                        }
+                    }
+                }
+            }
+
+            // Premium Purchase
+            is SettingsUiEvent.LaunchPurchase -> {
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isPurchasing = true) }
+                    try {
+                        val launched = billingRepository.launchPurchaseFlow(event.activity)
+                        if (!launched) {
+                            _uiState.update { it.copy(errorMessage = "Subscription is not available yet. Please try again later.") }
+                        }
+                    } catch (_: Exception) {
+                        _uiState.update { it.copy(errorMessage = "Purchase could not be started. Please check your internet connection.") }
+                    }
+                    _uiState.update { it.copy(isPurchasing = false) }
+                }
+            }
+
             // Other
             is SettingsUiEvent.ClearValidationError -> {
                 _uiState.update { it.copy(validationError = null) }
@@ -303,4 +484,12 @@ class SettingsViewModel(
             logoutUseCase()
         }
     }
+
+    private data class SettingsHolder(
+        val uid: String,
+        val persona: Persona?,
+        val fieldIds: Set<String>,
+        val schedule: WorkSchedule,
+        val modelState: ModelDownloadState
+    )
 }

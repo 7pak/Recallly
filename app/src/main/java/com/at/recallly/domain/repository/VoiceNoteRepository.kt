@@ -8,4 +8,5 @@ interface VoiceNoteRepository {
     suspend fun saveVoiceNote(voiceNote: VoiceNote)
     suspend fun updateVoiceNote(voiceNote: VoiceNote)
     suspend fun deleteVoiceNote(id: String)
+    suspend fun deleteAllVoiceNotes()
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.at.recallly.data.local.datastore.PreferencesManager
+import com.at.recallly.data.repository.CustomFieldRepositoryImpl
 import com.at.recallly.data.repository.VoiceNoteRepositoryImpl
 import com.at.recallly.domain.model.PersonaFields
 import com.at.recallly.domain.repository.ExtractionService
@@ -21,6 +22,7 @@ class ExtractionWorker(
     private val repository: VoiceNoteRepositoryImpl by inject()
     private val extractionService: ExtractionService by inject()
     private val preferencesManager: PreferencesManager by inject()
+    private val customFieldRepository: CustomFieldRepositoryImpl by inject()
 
     override suspend fun doWork(): Result {
         val voiceNoteId = inputData.getString(KEY_VOICE_NOTE_ID)
@@ -37,7 +39,9 @@ class ExtractionWorker(
             return Result.failure()
         }
 
-        val allFields = PersonaFields.getFieldsForPersona(voiceNote.persona)
+        val builtInFields = PersonaFields.getFieldsForPersona(voiceNote.persona)
+        val customFields = customFieldRepository.getCustomFieldsForPersona(voiceNote.persona).first()
+        val allFields = builtInFields + customFields
         val fields = if (selectedFieldIds.isEmpty()) allFields
         else allFields.filter { it.id in selectedFieldIds }
 

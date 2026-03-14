@@ -1,6 +1,8 @@
 package com.at.recallly.presentation.settings
 
+import android.app.Activity
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,10 +21,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.AlertDialog
@@ -37,6 +46,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -49,11 +59,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.at.recallly.R
 import com.at.recallly.core.util.LanguageManager
@@ -79,6 +94,8 @@ fun SettingsScreen(
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showDeleteDataDialog by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
     val currentLanguageCode = LanguageManager.getCurrentLanguageCode()
     val context = LocalContext.current
 
@@ -160,6 +177,146 @@ fun SettingsScreen(
         )
     }
 
+    // Navigate out after data deletion or account deletion
+    LaunchedEffect(uiState.dataDeleted) {
+        if (uiState.dataDeleted) onLogout()
+    }
+    LaunchedEffect(uiState.accountDeleted) {
+        if (uiState.accountDeleted) onLogout()
+    }
+
+    if (showDeleteDataDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDataDialog = false },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.DeleteSweep,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.settings_delete_data),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.settings_delete_data_confirm),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDataDialog = false
+                        onEvent(SettingsUiEvent.DeleteAllData)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_delete))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteDataDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    if (showDeleteAccountDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteAccountDialog = false },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.DeleteForever,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.settings_delete_account),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.settings_delete_account_confirm),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteAccountDialog = false
+                        onEvent(SettingsUiEvent.DeleteAccount)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.settings_delete_account))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteAccountDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    // Error dialog
+    if (uiState.errorMessage != null) {
+        AlertDialog(
+            onDismissRequest = { onEvent(SettingsUiEvent.DismissError) },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            text = {
+                Text(
+                    text = uiState.errorMessage,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onEvent(SettingsUiEvent.DismissError) },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -191,6 +348,19 @@ fun SettingsScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
+            // Premium Subscription Card — at the top, like professional apps
+            if (!uiState.isPremium) {
+                PremiumSubscriptionCard(
+                    isPurchasing = uiState.isPurchasing,
+                    onSubscribeClick = {
+                        val activity = context as? Activity
+                        if (activity != null) {
+                            onEvent(SettingsUiEvent.LaunchPurchase(activity))
+                        }
+                    }
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             // Professional Type
@@ -327,6 +497,68 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.outlineVariant
             )
 
+            // Calendar Sync
+            CalendarSyncRow(
+                isPremium = uiState.isPremium,
+                calendarSyncEnabled = uiState.calendarSyncEnabled,
+                onToggle = { onEvent(SettingsUiEvent.ToggleCalendarSync) }
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Reminder Notifications
+            ReminderNotificationsRow(
+                isPremium = uiState.isPremium,
+                reminderEnabled = uiState.reminderNotificationsEnabled,
+                onToggle = { onEvent(SettingsUiEvent.ToggleReminderNotifications) }
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Delete All Data
+            SettingsRow(
+                icon = Icons.Outlined.DeleteSweep,
+                iconContainerColor = MaterialTheme.colorScheme.errorContainer,
+                iconTint = MaterialTheme.colorScheme.onErrorContainer,
+                title = stringResource(R.string.settings_delete_data),
+                titleColor = MaterialTheme.colorScheme.error,
+                subtitle = if (uiState.isDeletingData) stringResource(R.string.settings_deleting_data)
+                    else stringResource(R.string.settings_delete_data_subtitle),
+                onClick = {
+                    if (!uiState.isDeletingData) showDeleteDataDialog = true
+                }
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Delete Account
+            SettingsRow(
+                icon = Icons.Outlined.DeleteForever,
+                iconContainerColor = MaterialTheme.colorScheme.errorContainer,
+                iconTint = MaterialTheme.colorScheme.onErrorContainer,
+                title = stringResource(R.string.settings_delete_account),
+                titleColor = MaterialTheme.colorScheme.error,
+                subtitle = if (uiState.isDeletingAccount) stringResource(R.string.settings_deleting_account)
+                    else stringResource(R.string.settings_delete_account_subtitle),
+                onClick = {
+                    if (!uiState.isDeletingAccount) showDeleteAccountDialog = true
+                }
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
             // Log Out
             SettingsRow(
                 icon = Icons.AutoMirrored.Outlined.Logout,
@@ -389,6 +621,146 @@ private fun SettingsRow(
     }
 }
 
+@Composable
+private fun CalendarSyncRow(
+    isPremium: Boolean,
+    calendarSyncEnabled: Boolean,
+    onToggle: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = isPremium, onClick = onToggle)
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.tertiaryContainer,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Outlined.CalendarMonth,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.settings_calendar_sync),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (!isPremium) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.height(20.dp)
+                    ) {
+                        Text(
+                            text = "PRO",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+            Text(
+                text = if (isPremium && calendarSyncEnabled)
+                    stringResource(R.string.settings_calendar_sync_on)
+                else
+                    stringResource(R.string.settings_calendar_sync_subtitle),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Switch(
+            checked = calendarSyncEnabled,
+            onCheckedChange = { if (isPremium) onToggle() },
+            enabled = isPremium
+        )
+    }
+}
+
+@Composable
+private fun ReminderNotificationsRow(
+    isPremium: Boolean,
+    reminderEnabled: Boolean,
+    onToggle: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = isPremium, onClick = onToggle)
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.tertiaryContainer,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Outlined.Notifications,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.settings_reminder_notifications),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (!isPremium) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.height(20.dp)
+                    ) {
+                        Text(
+                            text = "PRO",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+            Text(
+                text = if (isPremium && reminderEnabled)
+                    stringResource(R.string.settings_reminder_notifications_on)
+                else
+                    stringResource(R.string.settings_reminder_notifications_subtitle),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Switch(
+            checked = reminderEnabled,
+            onCheckedChange = { if (isPremium) onToggle() },
+            enabled = isPremium
+        )
+    }
+}
+
 private fun formatTime(time: LocalTime): String {
     val hour = if (time.hour == 0) 12
     else if (time.hour > 12) time.hour - 12
@@ -412,4 +784,152 @@ private fun buildScheduleSummary(schedule: com.at.recallly.domain.model.WorkSche
         }
     }
     return "$dayStr, ${formatTime(schedule.startTime)} \u2013 ${formatTime(schedule.endTime)}"
+}
+
+@Composable
+private fun PremiumSubscriptionCard(
+    isPurchasing: Boolean,
+    onSubscribeClick: () -> Unit
+) {
+    val gradientBrush = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFF0F172A), // DeepSlate / Slate900
+            Color(0xFF1E293B), // Slate800
+            Color(0xFF064E3B)  // MintDark
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(gradientBrush)
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp)
+        ) {
+            // Header: Star icon + Title + Limited Offer badge
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = Color(0xFFFBBF24) // Amber/Gold
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.premium_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color(0xFFFBBF24)
+                ) {
+                    Text(
+                        text = stringResource(R.string.premium_limited_offer),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFF0F172A),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Benefits list with check icons
+            val benefits = listOf(
+                R.string.premium_benefit_notes,
+                R.string.premium_benefit_no_ads,
+                R.string.premium_benefit_calendar,
+                R.string.premium_benefit_notifications
+            )
+            benefits.forEach { resId ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = Color(0xFF10B981) // ElectricMint
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(resId),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFFE2E8F0) // Slate200
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Price section: crossed-out original + current price
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Text(
+                    text = stringResource(R.string.premium_original_price),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Normal,
+                    color = Color(0xFF94A3B8), // Slate400
+                    textDecoration = TextDecoration.LineThrough
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = stringResource(R.string.premium_offer_price),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Text(
+                    text = stringResource(R.string.premium_per_month),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF94A3B8),
+                    modifier = Modifier.padding(start = 4.dp, bottom = 3.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Subscribe button
+            Button(
+                onClick = onSubscribeClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !isPurchasing,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF10B981), // ElectricMint
+                    contentColor = Color.White
+                )
+            ) {
+                if (isPurchasing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(
+                    text = stringResource(R.string.premium_subscribe_button),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                )
+            }
+        }
+    }
 }

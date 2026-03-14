@@ -35,6 +35,11 @@ android {
 
         buildConfigField("String", "WEB_CLIENT_ID", "\"${localProps.getProperty("WEB_CLIENT_ID", "")}\"")
         buildConfigField("String", "GEMINI_API_KEY", "\"${localProps.getProperty("GEMINI_API_KEY", "")}\"")
+        buildConfigField("String", "ADMOB_REWARDED_PRE_RECORD_ID", "\"${localProps.getProperty("ADMOB_REWARDED_PRE_RECORD_ID", "ca-app-pub-3940256099942544/5224354917")}\"")
+        buildConfigField("String", "ADMOB_REWARDED_POST_SAVE_ID", "\"${localProps.getProperty("ADMOB_REWARDED_POST_SAVE_ID", "ca-app-pub-3940256099942544/5224354917")}\"")
+        buildConfigField("String", "BILLING_SUBSCRIPTION_ID", "\"${localProps.getProperty("BILLING_SUBSCRIPTION_ID", "recallly_premium_monthly")}\"")
+
+        manifestPlaceholders["ADMOB_APP_ID"] = localProps.getProperty("ADMOB_APP_ID", "ca-app-pub-3940256099942544~3347511713")
 
         ndk {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a")
@@ -162,6 +167,9 @@ dependencies {
 
     // Timber
     implementation(libs.timber)
+
+    // Google Mobile Ads
+    implementation(libs.google.ads)
 
     // Gemini AI
     implementation(libs.google.generativeai)

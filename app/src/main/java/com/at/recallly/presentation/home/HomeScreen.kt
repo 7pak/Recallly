@@ -1,6 +1,9 @@
 package com.at.recallly.presentation.home
 
+import android.app.Activity
 import android.Manifest
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +29,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.CloudDownload
@@ -34,6 +39,7 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Mic
+import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
@@ -84,7 +90,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.at.recallly.R
 import com.at.recallly.core.util.LanguageManager
+import com.at.recallly.data.ad.RewardedAdManager
 import com.at.recallly.data.whisper.WhisperModelManager
+import org.koin.compose.koinInject
 import com.at.recallly.presentation.util.localizedDisplayName
 import com.at.recallly.domain.model.ModelDownloadState
 import com.at.recallly.domain.model.PersonaFields
@@ -108,7 +116,7 @@ fun HomeScreen(
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Permission launcher
+    // Mic permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -117,11 +125,187 @@ fun HomeScreen(
         }
     }
 
+    // Calendar: no permissions needed — we use Intent to open the Calendar app directly
+
+    // ── Ad gating ──────────────────────────────────────────────────
+    val rewardedAdManager: RewardedAdManager = koinInject()
+    val activity = context as? Activity
+
+    // Preload ads when required
+    LaunchedEffect(uiState.adRequired) {
+        if (uiState.adRequired) {
+            rewardedAdManager.preloadPreRecordAd(context)
+            rewardedAdManager.preloadPostSaveAd(context)
+        }
+    }
+
+    // Show pre-record rewarded ad
+    LaunchedEffect(uiState.showPreRecordAd) {
+        if (uiState.showPreRecordAd && activity != null) {
+            rewardedAdManager.showPreRecordAd(
+                activity = activity,
+                onRewarded = { onEvent(HomeUiEvent.PreRecordAdCompleted) },
+                onFailed = { onEvent(HomeUiEvent.PreRecordAdFailed) }
+            )
+        } else if (uiState.showPreRecordAd) {
+            // No activity reference — allow recording anyway
+            onEvent(HomeUiEvent.PreRecordAdFailed)
+        }
+    }
+
+    // Show post-save rewarded ad
+    LaunchedEffect(uiState.showPostSaveAd) {
+        if (uiState.showPostSaveAd && activity != null) {
+            rewardedAdManager.showPostSaveAd(
+                activity = activity,
+                onRewarded = { onEvent(HomeUiEvent.PostSaveAdCompleted) },
+                onFailed = { onEvent(HomeUiEvent.PostSaveAdFailed) }
+            )
+        } else if (uiState.showPostSaveAd) {
+            onEvent(HomeUiEvent.PostSaveAdFailed)
+        }
+    }
+
+    // Ad gate dialog
+    if (uiState.showAdGateDialog) {
+        AlertDialog(
+            onDismissRequest = { onEvent(HomeUiEvent.AdGateDismissed) },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Mic,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.ad_gate_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.ad_gate_message, uiState.freeNotesLimit),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = { onEvent(HomeUiEvent.AdGateAccepted) },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.ad_gate_watch_button))
+                    }
+                    TextButton(
+                        onClick = {
+                            onEvent(HomeUiEvent.AdGateDismissed)
+                            onNavigateToSettings()
+                        }
+                    ) {
+                        Text(stringResource(R.string.ad_gate_go_premium))
+                    }
+                    OutlinedButton(
+                        onClick = { onEvent(HomeUiEvent.AdGateDismissed) },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.ad_gate_cancel_button))
+                    }
+                }
+            },
+            dismissButton = {}
+        )
+    }
+
+    // Ready to Record dialog — shown after pre-record ad completes
+    if (uiState.showReadyToRecordDialog) {
+        AlertDialog(
+            onDismissRequest = { onEvent(HomeUiEvent.ReadyToRecordDismissed) },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Mic,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.ad_ready_to_record_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.ad_ready_to_record_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onEvent(HomeUiEvent.ReadyToRecordConfirmed) },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.ad_ready_to_record_button))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { onEvent(HomeUiEvent.ReadyToRecordDismissed) },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.ad_gate_cancel_button))
+                }
+            }
+        )
+    }
+
     // Show error snackbar
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
             snackbarHostState.showSnackbar(it)
             onEvent(HomeUiEvent.DismissError)
+        }
+    }
+
+    // Show calendar success snackbar
+    val calendarSuccessMsg = stringResource(R.string.calendar_added_success)
+    LaunchedEffect(uiState.calendarSuccess) {
+        if (uiState.calendarSuccess) {
+            snackbarHostState.showSnackbar(calendarSuccessMsg)
+            onEvent(HomeUiEvent.DismissCalendarSuccess)
+        }
+    }
+
+    // Launch calendar intent when set — try Google Calendar, fall back to any calendar app
+    LaunchedEffect(uiState.calendarIntent) {
+        uiState.calendarIntent?.let { intent ->
+            try {
+                context.startActivity(intent)
+            } catch (_: ActivityNotFoundException) {
+                // Google Calendar not installed — fall back to any calendar app
+                val fallback = Intent(intent).apply { setPackage(null) }
+                try {
+                    context.startActivity(fallback)
+                } catch (_: ActivityNotFoundException) {
+                    // No calendar app at all — ignore silently
+                }
+            }
+            onEvent(HomeUiEvent.CalendarIntentLaunched)
         }
     }
 
@@ -209,13 +393,27 @@ fun HomeScreen(
         )
     }
 
+    // Calendar confirm sheet
+    uiState.calendarDialog?.let { dialogState ->
+        CalendarConfirmSheet(
+            state = dialogState,
+            onConfirm = { dateTime -> onEvent(HomeUiEvent.ConfirmAddToCalendar(dateTime)) },
+            onDismiss = { onEvent(HomeUiEvent.DismissCalendarDialog) }
+        )
+    }
+
+    // No calendar permissions needed — Intent-based approach delegates to Calendar app
+    val onAddToCalendar: (String, String) -> Unit = { voiceNoteId, fieldId ->
+        onEvent(HomeUiEvent.AddToCalendarTapped(voiceNoteId, fieldId))
+    }
+
     // Extraction result sheet / Offline transcript sheet
     val extractionState = uiState.extractionState
     if (extractionState is ExtractionState.Success) {
         if (uiState.isOfflineExtraction) {
             OfflineTranscriptSheet(
                 transcript = extractionState.transcript,
-                onSaveAndQueue = { onEvent(HomeUiEvent.SaveExtractionResult) },
+                onSaveAndQueue = { edited -> onEvent(HomeUiEvent.SaveOfflineTranscript(edited)) },
                 onDiscard = { onEvent(HomeUiEvent.DismissExtractionResult) }
             )
         } else {
@@ -266,6 +464,32 @@ fun HomeScreen(
                     }
                 },
                 actions = {
+                    if (uiState.isPremium) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Star,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.onSecondary
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "PRO",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            }
+                        }
+                    }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Outlined.Settings,
@@ -365,8 +589,10 @@ fun HomeScreen(
             )
             1 -> MyDataTab(
                 voiceNotes = uiState.voiceNotes,
+                isPremium = uiState.isPremium,
                 onNoteClick = { onEvent(HomeUiEvent.SelectVoiceNote(it)) },
                 onDeleteNote = { onEvent(HomeUiEvent.DeleteVoiceNote(it)) },
+                onAddToCalendar = { voiceNoteId, fieldId -> onAddToCalendar(voiceNoteId, fieldId) },
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -574,6 +800,33 @@ private fun HomeTab(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                // Free notes remaining indicator (non-premium only)
+                if (!uiState.isPremium) {
+                    val remaining = (uiState.freeNotesLimit - uiState.freeNotesUsed).coerceAtLeast(0)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.PlayCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = if (remaining > 0) MaterialTheme.colorScheme.secondary
+                            else MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.ad_free_notes_remaining,
+                                remaining,
+                                uiState.freeNotesLimit
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (remaining > 0) MaterialTheme.colorScheme.onSurfaceVariant
+                            else MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
             }
         }
 
@@ -628,8 +881,12 @@ private fun HomeTab(
             uiState.voiceNotes.take(10).forEach { note ->
                 VoiceNoteCard(
                     note = note,
+                    isPremium = uiState.isPremium,
                     onClick = { onEvent(HomeUiEvent.SelectVoiceNote(note.id)) },
-                    onDelete = { onEvent(HomeUiEvent.DeleteVoiceNote(note.id)) }
+                    onDelete = { onEvent(HomeUiEvent.DeleteVoiceNote(note.id)) },
+                    onAddToCalendar = { fieldId ->
+                        onEvent(HomeUiEvent.AddToCalendarTapped(note.id, fieldId))
+                    }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -642,8 +899,10 @@ private fun HomeTab(
 @Composable
 private fun MyDataTab(
     voiceNotes: List<VoiceNote>,
+    isPremium: Boolean,
     onNoteClick: (String) -> Unit,
     onDeleteNote: (String) -> Unit,
+    onAddToCalendar: (voiceNoteId: String, fieldId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedFilter by rememberSaveable { mutableIntStateOf(0) }
@@ -817,8 +1076,10 @@ private fun MyDataTab(
                 items(paginatedNotes, key = { it.id }) { note ->
                     MyDataNoteCard(
                         note = note,
+                        isPremium = isPremium,
                         onClick = { onNoteClick(note.id) },
-                        onDelete = { onDeleteNote(note.id) }
+                        onDelete = { onDeleteNote(note.id) },
+                        onAddToCalendar = { fieldId -> onAddToCalendar(note.id, fieldId) }
                     )
                 }
 
@@ -857,8 +1118,10 @@ private fun MyDataTab(
 @Composable
 private fun MyDataNoteCard(
     note: VoiceNote,
+    isPremium: Boolean,
     onClick: () -> Unit,
     onDelete: () -> Unit,
+    onAddToCalendar: (fieldId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -1009,43 +1272,84 @@ private fun MyDataNoteCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Bottom: extraction status
-            if (note.extractionPending) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(12.dp),
-                        strokeWidth = 1.5.dp,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                    Text(
-                        text = stringResource(R.string.home_extraction_queued),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
+            // Bottom row: extraction status + calendar button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Left side: extraction status
+                if (note.extractionPending) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(12.dp),
+                            strokeWidth = 1.5.dp,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                        Text(
+                            text = stringResource(R.string.home_extraction_queued),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                } else if (totalFields > 0) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_fields_captured, filledFields, totalFields),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                        LinearProgressIndicator(
+                            progress = { filledFields.toFloat() / totalFields.toFloat() },
+                            modifier = Modifier
+                                .width(60.dp)
+                                .height(4.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+                        )
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
                 }
-            } else if (totalFields > 0) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.home_fields_captured, filledFields, totalFields),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                    // Progress bar
-                    LinearProgressIndicator(
-                        progress = { filledFields.toFloat() / totalFields.toFloat() },
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(4.dp),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
-                    )
+
+                // Right side: calendar button — only for premium, hidden if note has a date field
+                val hasDateField = note.extractedFields.keys.any { it.endsWith("_iso") }
+                val isSynced = note.extractedFields["_calendar_synced"] == "true"
+
+                if (!hasDateField) {
+                    Surface(
+                        modifier = Modifier.clickable {
+                            onAddToCalendar("_calendar")
+                        },
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CalendarMonth,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Text(
+                                text = if (isSynced) stringResource(R.string.calendar_added)
+                                else stringResource(R.string.calendar_add_to),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -1056,8 +1360,10 @@ private fun MyDataNoteCard(
 @Composable
 private fun VoiceNoteCard(
     note: VoiceNote,
+    isPremium: Boolean,
     onClick: () -> Unit,
     onDelete: () -> Unit,
+    onAddToCalendar: (fieldId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -1174,31 +1480,73 @@ private fun VoiceNoteCard(
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-            if (note.extractionPending) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(12.dp),
-                        strokeWidth = 1.5.dp,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                    Text(
-                        text = stringResource(R.string.home_extraction_queued),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (note.extractionPending) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(12.dp),
+                            strokeWidth = 1.5.dp,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                        Text(
+                            text = stringResource(R.string.home_extraction_queued),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                } else {
+                    val filledFields = note.extractedFields.count { it.value.isNotBlank() }
+                    val totalFields = note.extractedFields.size
+                    if (totalFields > 0) {
+                        Text(
+                            text = stringResource(R.string.home_fields_captured, filledFields, totalFields),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.width(1.dp))
+                    }
                 }
-            } else {
-                val filledFields = note.extractedFields.count { it.value.isNotBlank() }
-                val totalFields = note.extractedFields.size
-                if (totalFields > 0) {
-                    Text(
-                        text = stringResource(R.string.home_fields_captured, filledFields, totalFields),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+
+                // Calendar button — only for premium, hidden if note has a date field
+                val hasDateField = note.extractedFields.keys.any { it.endsWith("_iso") }
+                val isSynced = note.extractedFields["_calendar_synced"] == "true"
+
+                if (!hasDateField) {
+                    Surface(
+                        modifier = Modifier.clickable {
+                            onAddToCalendar("_calendar")
+                        },
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CalendarMonth,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Text(
+                                text = if (isSynced) stringResource(R.string.calendar_added)
+                                else stringResource(R.string.calendar_add_to),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
                 }
             }
         }

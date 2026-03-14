@@ -106,6 +106,18 @@ class AuthRepositoryImpl(
         firebaseAuth.signOut()
     }
 
+    override suspend fun deleteAccount() {
+        val user = firebaseAuth.currentUser ?: throw Exception("No user signed in")
+        try {
+            credentialManager.clearCredentialState(
+                androidx.credentials.ClearCredentialStateRequest()
+            )
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to clear credential state")
+        }
+        user.delete().await()
+    }
+
     private fun FirebaseUser.toDomainUser(): User {
         return User(
             id = uid,

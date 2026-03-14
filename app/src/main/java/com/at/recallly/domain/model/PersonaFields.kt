@@ -10,7 +10,7 @@ object PersonaFields {
         PersonaField("sr_interest_level", "Interest Level", "AI-inferred: Cold, Warm, or Hot", Persona.SALES_REP),
         PersonaField("sr_competitive", "Competitive Mention", "Any competitors discussed", Persona.SALES_REP),
         PersonaField("sr_next_action", "Next Action", "Agreed next step to take", Persona.SALES_REP),
-        PersonaField("sr_followup_date", "Follow-up Date", "Scheduled follow-up for calendar", Persona.SALES_REP),
+        PersonaField("sr_followup_date", "Follow-up Date", "Scheduled follow-up for calendar", Persona.SALES_REP, FieldType.DATE),
     )
 
     private val fieldEngineerFields = listOf(
@@ -21,7 +21,7 @@ object PersonaFields {
         PersonaField("fe_priority", "Priority Level", "Low, Medium, High, or Emergency", Persona.FIELD_ENGINEER),
         PersonaField("fe_safety", "Safety Hazards", "Risks identified on-site", Persona.FIELD_ENGINEER),
         PersonaField("fe_time_est", "Time Estimate", "Expected duration for the fix", Persona.FIELD_ENGINEER),
-        PersonaField("fe_deadline", "Deadline", "When the site must be operational", Persona.FIELD_ENGINEER),
+        PersonaField("fe_deadline", "Deadline", "When the site must be operational", Persona.FIELD_ENGINEER, FieldType.DATE),
     )
 
     private val insuranceAdjusterFields = listOf(
@@ -32,7 +32,7 @@ object PersonaFields {
         PersonaField("ia_liability", "Liability Notes", "Fault assessment from testimony", Persona.INSURANCE_ADJUSTER),
         PersonaField("ia_repair_cost", "Estimated Repair Cost", "Adjuster's spoken estimate", Persona.INSURANCE_ADJUSTER),
         PersonaField("ia_evidence", "Evidence Gathered", "Photos, witness statements, etc.", Persona.INSURANCE_ADJUSTER),
-        PersonaField("ia_inspection_date", "Inspection Date", "Official time of the visit", Persona.INSURANCE_ADJUSTER),
+        PersonaField("ia_inspection_date", "Inspection Date", "Official time of the visit", Persona.INSURANCE_ADJUSTER, FieldType.DATE),
     )
 
     fun getFieldsForPersona(persona: Persona): List<PersonaField> = when (persona) {

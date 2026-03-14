@@ -43,6 +43,11 @@ class VoiceNoteRepositoryImpl(
         fileStorage.writeAll(updated)
     }
 
+    override suspend fun deleteAllVoiceNotes() {
+        cache.value = emptyList()
+        fileStorage.writeAll(emptyList())
+    }
+
     fun getVoiceNoteById(id: String): VoiceNote? {
         return cache.value.find { it.id == id }?.toDomain()
     }

@@ -3,7 +3,9 @@ package com.at.recallly
 import android.app.Application
 import com.at.recallly.core.di.appModule
 import com.at.recallly.core.util.LanguageManager
+import com.at.recallly.data.notification.ReminderNotificationChannel
 import com.at.recallly.data.local.datastore.dataStore
+import com.google.android.gms.ads.MobileAds
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
@@ -18,6 +20,10 @@ class RecalllyApplication : Application() {
             androidContext(this@RecalllyApplication)
             modules(appModule)
         }
+
+        MobileAds.initialize(this) {}
+
+        ReminderNotificationChannel.create(this)
 
         val savedLanguage = runBlocking {
             dataStore.data.map { prefs ->

@@ -28,6 +28,12 @@ class PreferencesManager(private val context: Context) {
         val DRIVE_BACKUP_ENABLED = booleanPreferencesKey("drive_backup_enabled")
         val HAS_SEEN_MODEL_PROMPT = booleanPreferencesKey("has_seen_model_prompt")
         val APP_LANGUAGE = stringPreferencesKey("app_language")
+        val CALENDAR_SYNC_ENABLED = booleanPreferencesKey("calendar_sync_enabled")
+        val REMINDER_NOTIFICATIONS_ENABLED = booleanPreferencesKey("reminder_notifications_enabled")
+        val PENDING_REMINDERS = stringSetPreferencesKey("pending_reminders")
+        val FREE_NOTES_USED = intPreferencesKey("free_notes_used")
+        val FREE_CALENDAR_SYNCS_USED = intPreferencesKey("free_calendar_syncs_used")
+        val FREE_NOTIFICATIONS_USED = intPreferencesKey("free_notifications_used")
     }
 
     fun getOnboardingStepForUser(uid: String): Flow<Int> = context.dataStore.data
@@ -121,6 +127,59 @@ class PreferencesManager(private val context: Context) {
     val appLanguage: Flow<String> = context.dataStore.data
         .map { prefs -> prefs[APP_LANGUAGE] ?: "en" }
 
+    val calendarSyncEnabled: Flow<Boolean> = context.dataStore.data
+        .map { prefs -> prefs[CALENDAR_SYNC_ENABLED] == true }
+
+    suspend fun setCalendarSyncEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[CALENDAR_SYNC_ENABLED] = enabled
+        }
+    }
+
+    val reminderNotificationsEnabled: Flow<Boolean> = context.dataStore.data
+        .map { prefs -> prefs[REMINDER_NOTIFICATIONS_ENABLED] == true }
+
+    suspend fun setReminderNotificationsEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[REMINDER_NOTIFICATIONS_ENABLED] = enabled
+        }
+    }
+
+    suspend fun savePendingReminder(reminder: com.at.recallly.data.notification.PendingReminder) {
+        val json = kotlinx.serialization.json.Json.encodeToString(reminder)
+        context.dataStore.edit { prefs ->
+            val current = prefs[PENDING_REMINDERS] ?: emptySet()
+            // Remove existing entry with same id, then add new one
+            val filtered = current.filter { entry ->
+                try {
+                    kotlinx.serialization.json.Json.decodeFromString<com.at.recallly.data.notification.PendingReminder>(entry).id != reminder.id
+                } catch (_: Exception) { true }
+            }.toSet()
+            prefs[PENDING_REMINDERS] = filtered + json
+        }
+    }
+
+    suspend fun removePendingReminder(reminderId: Int) {
+        context.dataStore.edit { prefs ->
+            val current = prefs[PENDING_REMINDERS] ?: emptySet()
+            val filtered = current.filter { entry ->
+                try {
+                    kotlinx.serialization.json.Json.decodeFromString<com.at.recallly.data.notification.PendingReminder>(entry).id != reminderId
+                } catch (_: Exception) { true }
+            }.toSet()
+            prefs[PENDING_REMINDERS] = filtered
+        }
+    }
+
+    fun getAllPendingReminders(): Flow<List<com.at.recallly.data.notification.PendingReminder>> =
+        context.dataStore.data.map { prefs ->
+            (prefs[PENDING_REMINDERS] ?: emptySet()).mapNotNull { entry ->
+                try {
+                    kotlinx.serialization.json.Json.decodeFromString<com.at.recallly.data.notification.PendingReminder>(entry)
+                } catch (_: Exception) { null }
+            }
+        }
+
     suspend fun setAppLanguage(code: String) {
         context.dataStore.edit { prefs ->
             prefs[APP_LANGUAGE] = code
@@ -145,6 +204,42 @@ class PreferencesManager(private val context: Context) {
             prefs.remove(WORK_END_TIME)
             prefs.remove(DATA_CONSENT_ACCEPTED)
             prefs.remove(DRIVE_BACKUP_ENABLED)
+        }
+    }
+
+    val freeNotesUsed: Flow<Int> = context.dataStore.data
+        .map { prefs -> prefs[FREE_NOTES_USED] ?: 0 }
+
+    suspend fun incrementFreeNotesUsed() {
+        context.dataStore.edit { prefs ->
+            val current = prefs[FREE_NOTES_USED] ?: 0
+            prefs[FREE_NOTES_USED] = current + 1
+        }
+    }
+
+    val freeCalendarSyncsUsed: Flow<Int> = context.dataStore.data
+        .map { prefs -> prefs[FREE_CALENDAR_SYNCS_USED] ?: 0 }
+
+    suspend fun incrementFreeCalendarSyncsUsed() {
+        context.dataStore.edit { prefs ->
+            val current = prefs[FREE_CALENDAR_SYNCS_USED] ?: 0
+            prefs[FREE_CALENDAR_SYNCS_USED] = current + 1
+        }
+    }
+
+    val freeNotificationsUsed: Flow<Int> = context.dataStore.data
+        .map { prefs -> prefs[FREE_NOTIFICATIONS_USED] ?: 0 }
+
+    suspend fun incrementFreeNotificationsUsed() {
+        context.dataStore.edit { prefs ->
+            val current = prefs[FREE_NOTIFICATIONS_USED] ?: 0
+            prefs[FREE_NOTIFICATIONS_USED] = current + 1
+        }
+    }
+
+    suspend fun clearAllData() {
+        context.dataStore.edit { prefs ->
+            prefs.clear()
         }
     }
 }

@@ -5,6 +5,7 @@
     <string name="common_cancel">Cancelar</string>
     <string name="common_confirm">Confirmar</string>
     <string name="common_save">Guardar</string>
+    <string name="common_delete">Eliminar</string>
     <string name="common_continue">Continuar</string>
     <string name="common_back">Atrás</string>
     <string name="common_or_continue_with">\u0020\u0020o continuar con\u0020\u0020</string>
@@ -120,6 +121,16 @@
     <string name="fields_custom_title">Campos personalizados</string>
     <string name="fields_custom_desc">Crea tus propios campos de extracción adaptados a tu flujo de trabajo</string>
     <string name="fields_custom_pro">PRO</string>
+    <string name="fields_custom_add">Agregar campo personalizado</string>
+    <string name="fields_custom_edit">Editar campo personalizado</string>
+    <string name="fields_custom_name_label">Nombre del campo</string>
+    <string name="fields_custom_name_placeholder">ej. Rango de presupuesto</string>
+    <string name="fields_custom_desc_label">Descripción</string>
+    <string name="fields_custom_desc_placeholder">¿Qué debe extraer la IA para este campo?</string>
+    <string name="fields_custom_name_required">El nombre del campo es obligatorio</string>
+    <string name="fields_custom_desc_required">La descripción es obligatoria</string>
+    <string name="fields_custom_badge">Personalizado</string>
+    <string name="fields_custom_delete_confirm">¿Eliminar este campo personalizado? Esta acción no se puede deshacer.</string>
 
     <!-- Work Schedule -->
     <string name="schedule_title">Configura tu horario laboral</string>
@@ -198,7 +209,7 @@
 
     <!-- Offline Transcript -->
     <string name="offline_review_title">Revisa tu grabación</string>
-    <string name="offline_review_subtitle">Revisa la transcripción a continuación. Si se ve bien, guárdala y los campos se extraerán automáticamente cuando tengas conexión.</string>
+    <string name="offline_review_subtitle">Revisa y edita la transcripción a continuación. Cuando esté lista, guárdala y los campos se extraerán automáticamente cuando tengas conexión.</string>
     <string name="offline_extraction_notice">Los campos se extraerán automáticamente cuando haya internet</string>
     <string name="offline_save_and_queue">Guardar y poner en cola</string>
 
@@ -220,6 +231,14 @@
     <string name="settings_logout">Cerrar sesión</string>
     <string name="settings_logout_subtitle">Salir de tu cuenta</string>
     <string name="settings_logout_confirm">¿Estás seguro de que quieres cerrar sesión? Tus datos permanecerán almacenados de forma segura en este dispositivo.</string>
+    <string name="settings_delete_data">Eliminar todos los datos</string>
+    <string name="settings_delete_data_subtitle">Eliminar todas las notas de voz, campos y configuración</string>
+    <string name="settings_delete_data_confirm">Esto eliminará permanentemente todas tus notas de voz, campos personalizados y configuración. Tu cuenta permanecerá activa. Esta acción no se puede deshacer.</string>
+    <string name="settings_deleting_data">Eliminando datos…</string>
+    <string name="settings_delete_account">Eliminar cuenta</string>
+    <string name="settings_delete_account_subtitle">Eliminar permanentemente tu cuenta y todos los datos</string>
+    <string name="settings_delete_account_confirm">Esto eliminará permanentemente tu cuenta y todos los datos asociados, incluidas las notas de voz, campos personalizados y configuración. Esta acción no se puede deshacer.</string>
+    <string name="settings_deleting_account">Eliminando cuenta…</string>
 
     <!-- Settings: Persona Selection -->
     <string name="settings_change_persona">Cambiar tipo de profesional</string>
@@ -274,9 +293,56 @@
     <string name="export_pdf_generated">Generado por Recallly el %1$s</string>
     <string name="export_pdf_selected_fields">Campos seleccionados</string>
 
+    <!-- Calendar Sync -->
+    <string name="settings_calendar_sync">Sincronización de calendario</string>
+    <string name="settings_calendar_sync_subtitle">Sincroniza campos de fecha con tu Google Calendar</string>
+    <string name="settings_calendar_sync_on">Activado — las fechas se sincronizarán con el calendario</string>
+    <string name="calendar_add_title">Añadir al calendario</string>
+    <string name="calendar_confirm_title">Crear evento en el calendario</string>
+    <string name="calendar_added_success">Evento añadido a tu calendario</string>
+    <string name="calendar_added">Añadido al calendario</string>
+    <string name="calendar_add_to">Añadir al calendario</string>
+    <string name="calendar_select_time">Seleccionar hora</string>
+
+    <!-- Reminder Notifications -->
+    <string name="settings_reminder_notifications">Notificaciones de recordatorio</string>
+    <string name="settings_reminder_notifications_subtitle">Recibe notificaciones en el horario de los eventos</string>
+    <string name="settings_reminder_notifications_on">Activado — recibirás notificaciones en los horarios de eventos</string>
+    <string name="notification_channel_reminders">Recordatorios de eventos</string>
+
+    <string name="fields_type_text">Texto</string>
+    <string name="fields_type_date">Fecha</string>
+
     <!-- Language Selection -->
     <string name="language_model_note">Cambiar el idioma también cambiará el idioma del reconocimiento de voz y la extracción con IA.</string>
     <string name="onboarding_language_title">Elige tu idioma</string>
     <string name="onboarding_language_subtitle">Selecciona el idioma para la app y el reconocimiento de voz</string>
     <string name="onboarding_language_note">Este idioma se usará tanto para la interfaz de la app como para el modelo de reconocimiento de voz. Puedes cambiarlo después en Ajustes.</string>
+
+    <!-- Ads / Free Tier -->
+    <string name="ad_gate_title">Notas gratuitas agotadas</string>
+    <string name="ad_gate_message">Has usado todas tus %d notas de voz con IA gratuitas. Mira un video corto para continuar grabando.</string>
+    <string name="ad_gate_watch_button">Ver anuncio</string>
+    <string name="ad_gate_cancel_button">Cancelar</string>
+    <string name="ad_free_notes_remaining">%1$d de %2$d notas gratuitas</string>
+    <string name="ad_load_failed">No se pudo cargar el anuncio. Puedes continuar grabando.</string>
+    <string name="ad_ready_to_record_title">Listo para grabar</string>
+    <string name="ad_ready_to_record_message">¡Anuncio completado! Toca Iniciar cuando estés listo para comenzar a grabar.</string>
+    <string name="ad_ready_to_record_button">Iniciar grabación</string>
+    <string name="premium_calendar_sync_used">Has usado tu sincronización de calendario gratuita. Actualiza a Premium para sincronizaciones ilimitadas.</string>
+    <string name="premium_notification_used">Has usado tu notificación gratuita. Actualiza a Premium para notificaciones ilimitadas.</string>
+
+    <!-- Premium Subscription -->
+    <string name="premium_title">Recallly Premium</string>
+    <string name="premium_benefit_notes">Notas de voz con IA ilimitadas</string>
+    <string name="premium_benefit_no_ads">Sin anuncios</string>
+    <string name="premium_benefit_calendar">Sincronización de calendario</string>
+    <string name="premium_benefit_notifications">Notificaciones de recordatorio</string>
+    <string name="premium_subscribe_button">Suscribirse ahora</string>
+    <string name="premium_active">Premium activo</string>
+    <string name="premium_limited_offer">OFERTA LIMITADA</string>
+    <string name="premium_original_price">$8.99</string>
+    <string name="premium_offer_price">$4.99</string>
+    <string name="premium_per_month">/mes</string>
+    <string name="ad_gate_go_premium">Hazte Premium</string>
 </resources>

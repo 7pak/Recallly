@@ -31,5 +31,22 @@ data class SettingsUiState(
     val isExporting: Boolean = false,
     val exportedFileUri: Uri? = null,
     val exportError: String? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isPremium: Boolean = false,
+    // Calendar Sync
+    val calendarSyncEnabled: Boolean = false,
+    // Reminder Notifications
+    val reminderNotificationsEnabled: Boolean = false,
+    // Custom Fields
+    val customFields: List<PersonaField> = emptyList(),
+    val showCustomFieldDialog: Boolean = false,
+    val editingCustomField: PersonaField? = null,
+    // Data Management
+    val isDeletingData: Boolean = false,
+    val dataDeleted: Boolean = false,
+    val isDeletingAccount: Boolean = false,
+    val accountDeleted: Boolean = false,
+    // Premium Purchase
+    val subscriptionPrice: String? = null,
+    val isPurchasing: Boolean = false
 )

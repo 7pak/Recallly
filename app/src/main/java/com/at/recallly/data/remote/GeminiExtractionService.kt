@@ -3,12 +3,14 @@ package com.at.recallly.data.remote
 import com.at.recallly.core.result.Result
 import com.at.recallly.domain.model.ExtractionResult
 import com.at.recallly.domain.model.Persona
+import com.at.recallly.domain.model.FieldType
 import com.at.recallly.domain.model.PersonaField
 import com.at.recallly.domain.repository.ExtractionService
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
 import timber.log.Timber
 
@@ -44,8 +46,10 @@ class GeminiExtractionService(
         val fieldExamples = getFieldExamples(persona)
         val fieldTable = fields.joinToString("\n") { field ->
             val example = fieldExamples[field.id] ?: ""
-            "| ${field.id} | ${field.displayName} | ${field.description} | \"$example\" |"
+            val type = if (field.fieldType == FieldType.DATE) "DATE" else "TEXT"
+            "| ${field.id} | ${field.displayName} | ${field.description} | $type | \"$example\" |"
         }
+        val hasDateFields = fields.any { it.fieldType == FieldType.DATE }
         val example = getPersonaExample(persona)
 
         val languageName = when (language) {
@@ -64,8 +68,8 @@ Your job is to carefully read a voice transcript and extract specific structured
 $languageInstruction
 
 FIELDS TO EXTRACT (use the EXACT field IDs as JSON keys):
-| Field ID | Field Name | What to look for | Example value |
-|----------|------------|-------------------|---------------|
+| Field ID | Field Name | What to look for | Type | Example value |
+|----------|------------|-------------------|------|---------------|
 $fieldTable
 
 CRITICAL RULES:
@@ -82,7 +86,13 @@ CRITICAL RULES:
    - "interested but cautious" / "wants to think about it" → "Warm"
    - "not sure" / "just exploring" → "Cold"
 7. Convert spoken numbers to written form: "fifty thousand" → "$50,000", "two weeks" → "2 weeks"
-8. Keep values concise but complete — include titles, qualifiers, and context when stated
+8. Keep values concise but complete — include titles, qualifiers, and context when stated${if (hasDateFields) """
+9. DATE FIELDS: For fields marked as DATE type, return a JSON object instead of a string:
+   {"display": "the date as spoken", "iso": "YYYY-MM-DD"}
+   - "display" = the date exactly as the speaker said it (e.g. "Next Tuesday", "end of week", "March 10")
+   - "iso" = resolved to an actual calendar date in ISO format. Today is ${java.time.LocalDate.now()}. Resolve relative dates like "next Tuesday" or "end of week" against today.
+   - If you cannot determine an exact date, use "display" only and set "iso" to ""
+   - If the DATE field is not mentioned, use "" (empty string) like TEXT fields""" else ""}
 
 EXAMPLE:
 Transcript: "${example.transcript}"
@@ -110,7 +120,7 @@ TRANSCRIPT:
             "sr_interest_level" to "Hot",
             "sr_competitive" to "Currently using Salesforce",
             "sr_next_action" to "Send proposal and schedule demo",
-            "sr_followup_date" to "Next Tuesday"
+            "sr_followup_date" to "{\"display\": \"Next Tuesday\", \"iso\": \"2026-03-17\"}"
         )
         Persona.FIELD_ENGINEER -> mapOf(
             "fe_site_name" to "Riverside Power Plant, Building C",
@@ -120,7 +130,7 @@ TRANSCRIPT:
             "fe_priority" to "High",
             "fe_safety" to "High voltage area, lockout required",
             "fe_time_est" to "4 hours",
-            "fe_deadline" to "End of week"
+            "fe_deadline" to "{\"display\": \"End of week\", \"iso\": \"2026-03-20\"}"
         )
         Persona.INSURANCE_ADJUSTER -> mapOf(
             "ia_policy" to "HO-2024-88431",
@@ -130,7 +140,7 @@ TRANSCRIPT:
             "ia_liability" to "No third-party fault, natural flooding",
             "ia_repair_cost" to "\$12,000",
             "ia_evidence" to "Photos of basement, water line marks on walls",
-            "ia_inspection_date" to "March 10, 2026"
+            "ia_inspection_date" to "{\"display\": \"March 10\", \"iso\": \"2026-03-10\"}"
         )
     }
 
@@ -139,15 +149,15 @@ TRANSCRIPT:
     private fun getPersonaExample(persona: Persona): PromptExample = when (persona) {
         Persona.SALES_REP -> PromptExample(
             transcript = "Just finished a meeting with Sarah Johnson from TechVenture Inc. She's their CTO. They're looking at about a fifty thousand dollar package for their team. Main issue is their current system is way too slow and they're doing everything manually. She seemed really excited about our solution. They're currently on Salesforce but not happy with it. We agreed I'll send over a proposal and set up a demo for next Tuesday.",
-            result = """{"fields": {"sr_client_name": "Sarah Johnson, CTO", "sr_company": "TechVenture Inc", "sr_deal_value": "${'$'}50,000", "sr_pain_points": "Current system too slow, manual processes", "sr_interest_level": "Hot", "sr_competitive": "Currently using Salesforce, unhappy with it", "sr_next_action": "Send proposal and schedule demo", "sr_followup_date": "Next Tuesday"}, "additional_notes": "Excellent note — all key details captured!"}"""
+            result = """{"fields": {"sr_client_name": "Sarah Johnson, CTO", "sr_company": "TechVenture Inc", "sr_deal_value": "${'$'}50,000", "sr_pain_points": "Current system too slow, manual processes", "sr_interest_level": "Hot", "sr_competitive": "Currently using Salesforce, unhappy with it", "sr_next_action": "Send proposal and schedule demo", "sr_followup_date": {"display": "Next Tuesday", "iso": "2026-03-17"}}, "additional_notes": "Excellent note — all key details captured!"}"""
         )
         Persona.FIELD_ENGINEER -> PromptExample(
             transcript = "On site at Riverside Power Plant Building C. The main turbine generator GEN-4402 has a bearing failure. There's excessive vibration and noise from the drive end. Going to need a new SKF 6205 bearing and a seal kit. This is high priority because the unit needs to be back online by end of week. Note that this is a high voltage area so lockout tagout is required. I estimate about four hours for the repair.",
-            result = """{"fields": {"fe_site_name": "Riverside Power Plant, Building C", "fe_asset_id": "GEN-4402", "fe_issue_desc": "Bearing failure on main turbine, excessive vibration and noise from drive end", "fe_parts": "SKF 6205 bearing, seal kit", "fe_priority": "High", "fe_safety": "High voltage area, lockout/tagout required", "fe_time_est": "4 hours", "fe_deadline": "End of week"}, "additional_notes": "Great report — all fields clearly covered with good technical detail."}"""
+            result = """{"fields": {"fe_site_name": "Riverside Power Plant, Building C", "fe_asset_id": "GEN-4402", "fe_issue_desc": "Bearing failure on main turbine, excessive vibration and noise from drive end", "fe_parts": "SKF 6205 bearing, seal kit", "fe_priority": "High", "fe_safety": "High voltage area, lockout/tagout required", "fe_time_est": "4 hours", "fe_deadline": {"display": "End of week", "iso": "2026-03-20"}}, "additional_notes": "Great report — all fields clearly covered with good technical detail."}"""
         )
         Persona.INSURANCE_ADJUSTER -> PromptExample(
             transcript = "Inspecting the property of Robert Chen today March tenth. Policy number HO-2024-88431. This is a water damage claim from last week's flooding. The entire basement is flooded about two feet of standing water. Drywall is destroyed up to three feet and all the carpet needs to be replaced. No third party fault here it's natural flooding from the heavy rains. I'm estimating about twelve thousand dollars in repairs. Took photos of the basement and documented the water line marks on the walls.",
-            result = """{"fields": {"ia_policy": "HO-2024-88431", "ia_claimant": "Robert Chen", "ia_incident_type": "Water damage / Flooding", "ia_damage": "Basement flooded (2 feet standing water), drywall destroyed up to 3 feet, carpet needs full replacement", "ia_liability": "No third-party fault, natural flooding from heavy rains", "ia_repair_cost": "${'$'}12,000", "ia_evidence": "Photos of basement, water line marks on walls documented", "ia_inspection_date": "March 10"}, "additional_notes": "Thorough inspection notes — all key claim details captured clearly."}"""
+            result = """{"fields": {"ia_policy": "HO-2024-88431", "ia_claimant": "Robert Chen", "ia_incident_type": "Water damage / Flooding", "ia_damage": "Basement flooded (2 feet standing water), drywall destroyed up to 3 feet, carpet needs full replacement", "ia_liability": "No third-party fault, natural flooding from heavy rains", "ia_repair_cost": "${'$'}12,000", "ia_evidence": "Photos of basement, water line marks on walls documented", "ia_inspection_date": {"display": "March 10", "iso": "2026-03-10"}}, "additional_notes": "Thorough inspection notes — all key claim details captured clearly."}"""
         )
     }
 
@@ -168,7 +178,24 @@ TRANSCRIPT:
 
             val extractedFields = mutableMapOf<String, String>()
             for (field in fields) {
-                extractedFields[field.id] = fieldsObj[field.id]?.jsonPrimitive?.content ?: ""
+                val value = fieldsObj[field.id]
+                when {
+                    value == null || value is JsonPrimitive && value.content.isBlank() -> {
+                        extractedFields[field.id] = ""
+                    }
+                    value is JsonObject -> {
+                        // Date field returned as {"display": "...", "iso": "YYYY-MM-DD"}
+                        extractedFields[field.id] = value["display"]?.jsonPrimitive?.content ?: ""
+                        val iso = value["iso"]?.jsonPrimitive?.content ?: ""
+                        if (iso.isNotBlank()) {
+                            extractedFields["${field.id}_iso"] = iso
+                        }
+                    }
+                    else -> {
+                        // Plain string value (text field or date field fallback)
+                        extractedFields[field.id] = value.jsonPrimitive.content
+                    }
+                }
             }
 
             Result.Success(

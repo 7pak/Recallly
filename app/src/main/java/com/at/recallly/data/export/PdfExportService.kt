@@ -208,7 +208,8 @@ class PdfExportService(private val context: Context) {
             currentY += 16f
 
             selectedFields.forEach { field ->
-                val name = FieldLocalizer.getLocalizedFieldName(context, field.id)
+                val name = if (field.id.startsWith("custom_")) field.displayName
+                    else FieldLocalizer.getLocalizedFieldName(context, field.id)
                 canvas!!.drawText("•  $name", MARGIN + 8f, currentY, bodyPaint)
                 currentY += 16f
             }
@@ -308,7 +309,8 @@ class PdfExportService(private val context: Context) {
                         context.getString(R.string.export_pdf_no_value)
                     } else value
 
-                    val fieldName = FieldLocalizer.getLocalizedFieldName(context, field.id)
+                    val fieldName = if (field.id.startsWith("custom_")) field.displayName
+                        else FieldLocalizer.getLocalizedFieldName(context, field.id)
 
                     // Calculate row height
                     val nameLines = calculateLineCount(fieldLabelPaint, fieldName, labelWidth - 8f)

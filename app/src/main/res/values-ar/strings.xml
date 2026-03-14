@@ -5,6 +5,7 @@
     <string name="common_cancel">إلغاء</string>
     <string name="common_confirm">تأكيد</string>
     <string name="common_save">حفظ</string>
+    <string name="common_delete">حذف</string>
     <string name="common_continue">متابعة</string>
     <string name="common_back">رجوع</string>
     <string name="common_or_continue_with">\u0020\u0020أو المتابعة عبر\u0020\u0020</string>
@@ -120,6 +121,16 @@
     <string name="fields_custom_title">حقول مخصصة</string>
     <string name="fields_custom_desc">أنشئ حقول استخراج خاصة بك مصممة لسير عملك</string>
     <string name="fields_custom_pro">PRO</string>
+    <string name="fields_custom_add">إضافة حقل مخصص</string>
+    <string name="fields_custom_edit">تعديل حقل مخصص</string>
+    <string name="fields_custom_name_label">اسم الحقل</string>
+    <string name="fields_custom_name_placeholder">مثال: نطاق الميزانية</string>
+    <string name="fields_custom_desc_label">الوصف</string>
+    <string name="fields_custom_desc_placeholder">ماذا يجب أن يستخرج الذكاء الاصطناعي لهذا الحقل؟</string>
+    <string name="fields_custom_name_required">اسم الحقل مطلوب</string>
+    <string name="fields_custom_desc_required">الوصف مطلوب</string>
+    <string name="fields_custom_badge">مخصص</string>
+    <string name="fields_custom_delete_confirm">حذف هذا الحقل المخصص؟ لا يمكن التراجع عن هذا الإجراء.</string>
 
     <!-- Work Schedule -->
     <string name="schedule_title">حدد ساعات عملك</string>
@@ -198,7 +209,7 @@
 
     <!-- Offline Transcript -->
     <string name="offline_review_title">راجع تسجيلك</string>
-    <string name="offline_review_subtitle">تحقق من النص المكتوب أدناه. إذا كان صحيحاً، احفظه وسيتم استخراج الحقول تلقائياً عند عودة الاتصال بالإنترنت.</string>
+    <string name="offline_review_subtitle">راجع وعدّل النص المكتوب أدناه. عندما يصبح جاهزاً، احفظه وسيتم استخراج الحقول تلقائياً عند عودة الاتصال بالإنترنت.</string>
     <string name="offline_extraction_notice">سيتم استخراج الحقول تلقائياً عند توفر الإنترنت</string>
     <string name="offline_save_and_queue">حفظ وإضافة للانتظار</string>
 
@@ -220,6 +231,14 @@
     <string name="settings_logout">تسجيل الخروج</string>
     <string name="settings_logout_subtitle">الخروج من حسابك</string>
     <string name="settings_logout_confirm">هل أنت متأكد من تسجيل الخروج؟ ستبقى بياناتك مخزنة بأمان على هذا الجهاز.</string>
+    <string name="settings_delete_data">حذف جميع البيانات</string>
+    <string name="settings_delete_data_subtitle">إزالة جميع الملاحظات الصوتية والحقول والإعدادات</string>
+    <string name="settings_delete_data_confirm">سيتم حذف جميع ملاحظاتك الصوتية وحقولك المخصصة وإعداداتك نهائياً. سيبقى حسابك نشطاً. لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="settings_deleting_data">جارٍ حذف البيانات…</string>
+    <string name="settings_delete_account">حذف الحساب</string>
+    <string name="settings_delete_account_subtitle">حذف حسابك وجميع بياناتك نهائياً</string>
+    <string name="settings_delete_account_confirm">سيتم حذف حسابك وجميع البيانات المرتبطة به نهائياً بما في ذلك الملاحظات الصوتية والحقول المخصصة والإعدادات. لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="settings_deleting_account">جارٍ حذف الحساب…</string>
 
     <!-- Settings: Persona Selection -->
     <string name="settings_change_persona">تغيير نوع التخصص</string>
@@ -274,9 +293,56 @@
     <string name="export_pdf_generated">تم الإنشاء بواسطة Recallly في %1$s</string>
     <string name="export_pdf_selected_fields">الحقول المحددة</string>
 
+    <!-- Calendar Sync -->
+    <string name="settings_calendar_sync">مزامنة التقويم</string>
+    <string name="settings_calendar_sync_subtitle">مزامنة حقول التاريخ مع تقويم Google الخاص بك</string>
+    <string name="settings_calendar_sync_on">مفعّل — ستتم مزامنة التواريخ مع التقويم</string>
+    <string name="calendar_add_title">إضافة إلى التقويم</string>
+    <string name="calendar_confirm_title">إنشاء حدث في التقويم</string>
+    <string name="calendar_added_success">تمت إضافة الحدث إلى تقويمك</string>
+    <string name="calendar_added">تمت الإضافة إلى التقويم</string>
+    <string name="calendar_add_to">إضافة إلى التقويم</string>
+    <string name="calendar_select_time">اختر الوقت</string>
+
+    <!-- Reminder Notifications -->
+    <string name="settings_reminder_notifications">إشعارات التذكير</string>
+    <string name="settings_reminder_notifications_subtitle">احصل على إشعار في وقت أحداث التقويم</string>
+    <string name="settings_reminder_notifications_on">مفعّل — ستتلقى إشعارات في أوقات الأحداث</string>
+    <string name="notification_channel_reminders">تذكيرات الأحداث</string>
+
+    <string name="fields_type_text">نص</string>
+    <string name="fields_type_date">تاريخ</string>
+
     <!-- Language Selection -->
     <string name="language_model_note">تغيير اللغة سيغير أيضاً لغة التعرف على الصوت واستخراج البيانات بالذكاء الاصطناعي.</string>
     <string name="onboarding_language_title">اختر لغتك</string>
     <string name="onboarding_language_subtitle">حدد اللغة للتطبيق والتعرف على الصوت</string>
     <string name="onboarding_language_note">ستُستخدم هذه اللغة لواجهة التطبيق ونموذج التعرف على الصوت. يمكنك تغييرها لاحقاً من الإعدادات.</string>
+
+    <!-- Ads / Free Tier -->
+    <string name="ad_gate_title">نفدت الملاحظات المجانية</string>
+    <string name="ad_gate_message">لقد استخدمت جميع ملاحظاتك المجانية الـ %d. شاهد فيديو قصير لمتابعة التسجيل.</string>
+    <string name="ad_gate_watch_button">مشاهدة إعلان</string>
+    <string name="ad_gate_cancel_button">إلغاء</string>
+    <string name="ad_free_notes_remaining">%1$d من %2$d ملاحظات مجانية</string>
+    <string name="ad_load_failed">تعذّر تحميل الإعلان. يمكنك متابعة التسجيل.</string>
+    <string name="ad_ready_to_record_title">جاهز للتسجيل</string>
+    <string name="ad_ready_to_record_message">اكتمل الإعلان! انقر على ابدأ عندما تكون جاهزًا لبدء التسجيل.</string>
+    <string name="ad_ready_to_record_button">ابدأ التسجيل</string>
+    <string name="premium_calendar_sync_used">لقد استخدمت مزامنة التقويم المجانية. قم بالترقية إلى بريميوم لمزامنة غير محدودة.</string>
+    <string name="premium_notification_used">لقد استخدمت الإشعار المجاني. قم بالترقية إلى بريميوم لإشعارات غير محدودة.</string>
+
+    <!-- Premium Subscription -->
+    <string name="premium_title">Recallly بريميوم</string>
+    <string name="premium_benefit_notes">ملاحظات صوتية ذكية غير محدودة</string>
+    <string name="premium_benefit_no_ads">بدون إعلانات</string>
+    <string name="premium_benefit_calendar">مزامنة التقويم</string>
+    <string name="premium_benefit_notifications">إشعارات التذكير</string>
+    <string name="premium_subscribe_button">اشترك الآن</string>
+    <string name="premium_active">بريميوم مفعّل</string>
+    <string name="premium_limited_offer">عرض محدود</string>
+    <string name="premium_original_price">$8.99</string>
+    <string name="premium_offer_price">$4.99</string>
+    <string name="premium_per_month">/شهر</string>
+    <string name="ad_gate_go_premium">الترقية لبريميوم</string>
 </resources>

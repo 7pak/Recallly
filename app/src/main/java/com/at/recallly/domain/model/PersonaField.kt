@@ -4,5 +4,6 @@ data class PersonaField(
     val id: String,
     val displayName: String,
     val description: String,
-    val persona: Persona
+    val persona: Persona,
+    val fieldType: FieldType = FieldType.TEXT
 )

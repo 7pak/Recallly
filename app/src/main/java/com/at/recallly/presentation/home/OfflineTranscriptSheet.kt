@@ -20,10 +20,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -35,9 +41,10 @@ import com.at.recallly.R
 @Composable
 fun OfflineTranscriptSheet(
     transcript: String,
-    onSaveAndQueue: () -> Unit,
+    onSaveAndQueue: (editedTranscript: String) -> Unit,
     onDiscard: () -> Unit
 ) {
+    var editedTranscript by remember { mutableStateOf(transcript) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -83,27 +90,19 @@ fun OfflineTranscriptSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Transcript
-            Surface(
+            // Editable Transcript
+            OutlinedTextField(
+                value = editedTranscript,
+                onValueChange = { editedTranscript = it },
+                label = { Text(stringResource(R.string.detail_transcript)) },
                 modifier = Modifier.fillMaxWidth(),
+                minLines = 4,
                 shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.detail_transcript),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = transcript,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -150,7 +149,7 @@ fun OfflineTranscriptSheet(
                     Text(stringResource(R.string.common_discard))
                 }
                 Button(
-                    onClick = onSaveAndQueue,
+                    onClick = { onSaveAndQueue(editedTranscript) },
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),

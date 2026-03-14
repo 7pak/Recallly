@@ -55,14 +55,23 @@ These are read at build time via `Properties` in `app/build.gradle.kts`.
   - `theme/` — Material3 Color, Theme, Typography
   - `util/` — DispatcherProvider, Constants, Extensions, RecalllyException
 
+### Navigation Flow
+
+`Splash → (Login/SignUp) → Language Selection → Persona → Fields → WorkSchedule → DataConsent → Home`
+
+Routes defined as `@Serializable` sealed classes in `presentation/navigation/Route.kt`. The `RecalllyNavGraph` observes auth + onboarding state via `LaunchedEffect` to auto-navigate. Settings has sub-routes with parameter passing (e.g., `SettingsFieldSelection(fromPersonaChange: Boolean)`).
+
 ### Key Files
 
 - **Entry point**: `MainActivity.kt` → `RecalllyNavGraph` → screens
-- **Application**: `RecalllyApplication.kt` (Koin + Timber initialization)
+- **Application**: `RecalllyApplication.kt` (Koin + Timber initialization, loads saved language via `runBlocking`)
 - **DI**: `core/di/AppModule.kt` (single Koin module — all registrations here)
-- **Navigation**: `presentation/navigation/RecalllyNavGraph.kt` (type-safe routes via `@Serializable` sealed classes in `Route.kt`)
+- **Navigation**: `presentation/navigation/RecalllyNavGraph.kt` + `Route.kt`
 - **Database**: `data/local/db/RecalllyDatabase.kt` (Room, schema exports to `app/schemas/`)
 - **Preferences**: `data/local/datastore/PreferencesManager.kt`
+- **Voice note storage**: `data/local/file/VoiceNoteFileStorage.kt` — JSON file at `filesDir/voice_notes.json`, Mutex for thread safety
+- **PDF export**: `data/export/PdfExportService.kt` — native Android `PdfDocument` API, A4 pages, uses `FieldLocalizer` for localized field names
+- **Language**: `core/util/LanguageManager.kt` — manages locale switching via `AppCompatDelegate.setApplicationLocales`
 
 ## Speech Recognition (Dual-Mode)
 
@@ -95,9 +104,10 @@ The app uses two speech recognition paths, chosen at mic-tap time via `Connectiv
 
 ### HomeViewModel Recording States
 
-`HomeViewModel` (11 DI parameters) manages the recording lifecycle with these states:
+`HomeViewModel` (14 DI parameters) manages the recording lifecycle with these states:
 - `RecordingState.Idle` → `Recording` (online) or `RecordingWhisper` (offline) → `Transcribing` → `Processing`
 - `ModelDownloadState`: `NotDownloaded` → `Downloading(progress)` → `Downloaded` | `Error`
+- Whisper mode runs 3 coroutine jobs: `whisperTimerJob` (elapsed time), `whisperAmplitudeJob` (visual feedback), `whisperSilenceJob` (3-second silence timeout at amplitude threshold 0.01f)
 
 ## Dependency Management
 
@@ -119,6 +129,17 @@ Dependencies managed via version catalog at `gradle/libs.versions.toml`. Add new
 | AI | Google Generative AI (Gemini) |
 | Serialization | Kotlinx Serialization JSON |
 
+## Multi-Language Support
+
+4 supported languages: English (`en`), Arabic (`ar`), Spanish (`es`), Turkish (`tr`).
+
+- String resources in `values/`, `values-ar/`, `values-es/`, `values-tr/` (~282 strings each)
+- String naming convention: `common_`, `login_`, `signup_`, `error_`, `persona_`, `field_sr_`, `field_fe_`, `field_ia_`
+- `LanguageManager` handles locale switching and provides whisper language codes + SpeechRecognizer locales
+- `LocalizationExtensions.kt` — Composable extensions using `stringResource(R.string.*)` for UI
+- `FieldLocalizer` — non-Composable object for context-based string lookup (used in PDF export)
+- RTL support enabled in manifest; `localeConfig` declared in `@xml/locales_config`
+
 ## Architectural Rules
 
 - 100% Kotlin. No Java.
@@ -127,4 +148,6 @@ Dependencies managed via version catalog at `gradle/libs.versions.toml`. Add new
 - Repositories implement domain interfaces in the data layer.
 - Strictly offline-first — no cloud database.
 - KSP + Room compiler are commented out — KSP 2.3+ requires AGP 9.0+ which Android Studio doesn't yet support. Uncomment when upgrading to AGP 9.
-- Voice notes are stored as JSON files via `VoiceNoteFileStorage` (not Room) — loaded into memory on app start via `VoiceNoteRepositoryImpl.loadFromDisk()`.
+- Voice notes are stored as JSON files via `VoiceNoteFileStorage` (not Room) — loaded into memory on app start via `VoiceNoteRepositoryImpl.loadFromDisk()`. The repository maintains an in-memory `MutableStateFlow` cache and persists on every add/update/delete.
+- No custom lint, detekt, or ktlint config — relies on IDE defaults.
+- No CI/CD pipeline configured.

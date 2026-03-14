@@ -89,16 +89,14 @@ class OnboardingViewModel(
 
             is OnboardingUiEvent.ConfirmPersona -> {
                 val persona = _uiState.value.selectedPersona ?: return
-                val uid = currentUid ?: return
+                currentUid ?: return
                 val fields = getFieldsForPersonaUseCase(persona)
                 _uiState.update {
-                    it.copy(availableFields = fields, selectedFieldIds = emptySet())
-                }
-                viewModelScope.launch {
-                    savePersonaUseCase(uid, persona)
-                    _uiState.update {
-                        it.copy(onboardingStep = OnboardingStep.PERSONA_COMPLETED)
-                    }
+                    it.copy(
+                        availableFields = fields,
+                        selectedFieldIds = emptySet(),
+                        onboardingStep = OnboardingStep.PERSONA_COMPLETED
+                    )
                 }
             }
 
@@ -121,6 +119,8 @@ class OnboardingViewModel(
 
             is OnboardingUiEvent.ConfirmFields -> {
                 val state = _uiState.value
+                val persona = state.selectedPersona ?: return
+                val uid = currentUid ?: return
                 if (state.selectedFieldIds.size < 3) {
                     _uiState.update {
                         it.copy(validationError = "Please select at least 3 fields")
@@ -128,6 +128,7 @@ class OnboardingViewModel(
                     return
                 }
                 viewModelScope.launch {
+                    savePersonaUseCase(uid, persona)
                     saveFieldsUseCase(state.selectedFieldIds)
                     _uiState.update {
                         it.copy(
