@@ -12,8 +12,10 @@ import com.at.recallly.data.ad.RewardedAdManager
 import com.at.recallly.data.billing.BillingClientWrapper
 import com.at.recallly.data.billing.PremiumPreferences
 import com.at.recallly.data.local.file.CustomFieldFileStorage
+import com.at.recallly.data.backup.DriveBackupService
 import com.at.recallly.data.repository.AuthRepositoryImpl
 import com.at.recallly.data.repository.AdRepositoryImpl
+import com.at.recallly.data.repository.BackupRepositoryImpl
 import com.at.recallly.data.repository.BillingRepositoryImpl
 import com.at.recallly.data.repository.CustomFieldRepositoryImpl
 import com.at.recallly.data.repository.OnboardingRepositoryImpl
@@ -41,9 +43,14 @@ import com.at.recallly.data.repository.WhisperRepositoryImpl
 import com.at.recallly.data.whisper.AudioRecorder
 import com.at.recallly.data.whisper.WhisperModelManager
 import com.at.recallly.data.worker.ExtractionWorkScheduler
+import com.at.recallly.data.worker.BackupWorkScheduler
+import com.at.recallly.domain.repository.BackupRepository
 import com.at.recallly.domain.repository.ExtractionScheduler
 import com.at.recallly.domain.repository.ReminderScheduler
 import com.at.recallly.domain.repository.WhisperRepository
+import com.at.recallly.domain.usecase.backup.BackupDataUseCase
+import com.at.recallly.domain.usecase.backup.GetBackupInfoUseCase
+import com.at.recallly.domain.usecase.backup.RestoreDataUseCase
 import com.at.recallly.domain.usecase.billing.ObservePremiumStatusUseCase
 import com.at.recallly.domain.usecase.fields.AddCustomFieldUseCase
 import com.at.recallly.domain.usecase.fields.DeleteCustomFieldUseCase
@@ -130,6 +137,14 @@ val appModule = module {
     single { RewardedAdManager() }
     single<AdRepository> { AdRepositoryImpl(get()) }
 
+    // ── Backup ─────────────────────────────────────────────────────────
+
+    single { DriveBackupService(get(), get()) }
+    single { BackupWorkScheduler(get()) }
+    single<BackupRepository> {
+        BackupRepositoryImpl(get(), get(), get(), get(), get<VoiceNoteRepositoryImpl>(), get<CustomFieldRepositoryImpl>())
+    }
+
     // ── Export ───────────────────────────────────────────────────────────
 
     single { PdfExportService(get()) }
@@ -174,6 +189,12 @@ val appModule = module {
 
     factory { ObservePremiumStatusUseCase(get()) }
 
+    // ── Use Cases: Backup ──────────────────────────────────────────────
+
+    factory { BackupDataUseCase(get()) }
+    factory { RestoreDataUseCase(get()) }
+    factory { GetBackupInfoUseCase(get()) }
+
     // ── Use Cases: Export ────────────────────────────────────────────────
 
     factory { ExportVoiceNotesPdfUseCase(get(), get(), get(), get(), get(), get()) }
@@ -197,7 +218,8 @@ val appModule = module {
             savePersonaUseCase = get(),
             saveFieldsUseCase = get(),
             saveScheduleUseCase = get(),
-            onboardingRepository = get()
+            onboardingRepository = get(),
+            backupWorkScheduler = get()
         )
     }
 
@@ -238,7 +260,13 @@ val appModule = module {
             deleteCustomFieldUseCase = get(),
             deleteAllDataUseCase = get(),
             deleteAccountUseCase = get(),
-            billingRepository = get()
+            billingRepository = get(),
+            backupDataUseCase = get(),
+            restoreDataUseCase = get(),
+            getBackupInfoUseCase = get(),
+            backupWorkScheduler = get(),
+            backupRepository = get(),
+            driveBackupService = get()
         )
     }
 }

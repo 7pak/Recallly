@@ -273,6 +273,21 @@
     <string name="detail_extraction_pending">الاستخراج في قائمة الانتظار — سيتم ملء الحقول عند عودتك للاتصال</string>
     <string name="detail_no_value">\u2014</string>
 
+    <!-- Backup & Restore -->
+    <string name="settings_drive_backup">نسخ احتياطي على Google Drive</string>
+    <string name="settings_drive_backup_desc">نسخ احتياطي تلقائي لبياناتك يوميًا</string>
+    <string name="settings_backup_now">نسخ احتياطي الآن</string>
+    <string name="settings_restore">استعادة</string>
+    <string name="settings_restore_subtitle">استعادة البيانات من نسخة Google Drive الاحتياطية</string>
+    <string name="settings_last_backup">آخر نسخ احتياطي: %1$s</string>
+    <string name="settings_never_backed_up">لم يتم النسخ الاحتياطي بعد</string>
+    <string name="settings_backup_in_progress">جارٍ النسخ الاحتياطي…</string>
+    <string name="settings_restore_in_progress">جارٍ الاستعادة…</string>
+    <string name="settings_backup_success">تم النسخ الاحتياطي بنجاح</string>
+    <string name="settings_restore_success">تمت استعادة البيانات بنجاح</string>
+    <string name="settings_restore_confirm_title">استعادة البيانات؟</string>
+    <string name="settings_restore_confirm_message">سيتم استبدال جميع البيانات المحلية بالنسخة الاحتياطية من %1$s (%2$d ملاحظة صوتية، من %3$s). لا يمكن التراجع عن هذا الإجراء.</string>
+
     <!-- Export -->
     <string name="settings_export_data">تصدير البيانات</string>
     <string name="settings_export_subtitle">تحميل جميع الملاحظات كملف PDF</string>

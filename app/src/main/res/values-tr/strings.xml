@@ -273,6 +273,21 @@
     <string name="detail_extraction_pending">Çıkarım sırada — alanlar tekrar çevrimiçi olduğunuzda doldurulacak</string>
     <string name="detail_no_value">\u2014</string>
 
+    <!-- Backup & Restore -->
+    <string name="settings_drive_backup">Google Drive Yedekleme</string>
+    <string name="settings_drive_backup_desc">Verilerinizi günlük otomatik yedekleyin</string>
+    <string name="settings_backup_now">Şimdi Yedekle</string>
+    <string name="settings_restore">Geri Yükle</string>
+    <string name="settings_restore_subtitle">Google Drive yedeğinden verileri geri yükle</string>
+    <string name="settings_last_backup">Son yedekleme: %1$s</string>
+    <string name="settings_never_backed_up">Henüz yedeklenmedi</string>
+    <string name="settings_backup_in_progress">Yedekleniyor…</string>
+    <string name="settings_restore_in_progress">Geri yükleniyor…</string>
+    <string name="settings_backup_success">Yedekleme başarıyla tamamlandı</string>
+    <string name="settings_restore_success">Veriler başarıyla geri yüklendi</string>
+    <string name="settings_restore_confirm_title">Verileri Geri Yükle?</string>
+    <string name="settings_restore_confirm_message">Bu işlem tüm yerel verileri %1$s tarihli yedekle değiştirecek (%2$d sesli not, %3$s cihazından). Bu işlem geri alınamaz.</string>
+
     <!-- Export -->
     <string name="settings_export_data">Verileri dışa aktar</string>
     <string name="settings_export_subtitle">Tüm notları PDF olarak indir</string>

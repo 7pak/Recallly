@@ -9,8 +9,10 @@ import com.google.android.gms.ads.MobileAds
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 class RecalllyApplication : Application() {
@@ -32,6 +34,16 @@ class RecalllyApplication : Application() {
         }
         if (savedLanguage != "en") {
             LanguageManager.applyLanguage(savedLanguage)
+        }
+
+        // Ensure periodic backup is scheduled if user has it enabled
+        val driveBackupEnabled = runBlocking {
+            dataStore.data.map { prefs ->
+                prefs[booleanPreferencesKey("drive_backup_enabled")] == true
+            }.first()
+        }
+        if (driveBackupEnabled) {
+            get<com.at.recallly.data.worker.BackupWorkScheduler>().schedulePeriodicBackup()
         }
     }
 }

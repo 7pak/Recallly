@@ -273,6 +273,21 @@
     <string name="detail_extraction_pending">Extraction queued — fields will be filled when you\'re back online</string>
     <string name="detail_no_value">\u2014</string>
 
+    <!-- Backup & Restore -->
+    <string name="settings_drive_backup">Google Drive Backup</string>
+    <string name="settings_drive_backup_desc">Automatically back up your data daily</string>
+    <string name="settings_backup_now">Backup Now</string>
+    <string name="settings_restore">Restore</string>
+    <string name="settings_restore_subtitle">Restore data from Google Drive backup</string>
+    <string name="settings_last_backup">Last backup: %1$s</string>
+    <string name="settings_never_backed_up">Never backed up</string>
+    <string name="settings_backup_in_progress">Backing up…</string>
+    <string name="settings_restore_in_progress">Restoring…</string>
+    <string name="settings_backup_success">Backup completed successfully</string>
+    <string name="settings_restore_success">Data restored successfully</string>
+    <string name="settings_restore_confirm_title">Restore Data?</string>
+    <string name="settings_restore_confirm_message">This will replace all local data with the backup from %1$s (%2$d voice notes, from %3$s). This cannot be undone.</string>
+
     <!-- Export -->
     <string name="settings_export_data">Export Data</string>
     <string name="settings_export_subtitle">Download all notes as PDF</string>

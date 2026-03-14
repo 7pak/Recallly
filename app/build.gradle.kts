@@ -24,6 +24,18 @@ android {
 
     ndkVersion = "26.3.11579264"
 
+    signingConfigs {
+        create("release") {
+            val keystorePath = localProps.getProperty("RELEASE_KEYSTORE_FILE", "")
+            if (keystorePath.isNotEmpty()) {
+                storeFile = file(keystorePath)
+                storePassword = localProps.getProperty("RELEASE_KEYSTORE_PASSWORD", "")
+                keyAlias = localProps.getProperty("RELEASE_KEY_ALIAS", "")
+                keyPassword = localProps.getProperty("RELEASE_KEY_PASSWORD", "")
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.at.recallly"
         minSdk = 28
@@ -64,11 +76,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -158,6 +172,9 @@ dependencies {
         exclude(group = "org.apache.httpcomponents")
     }
     implementation(libs.google.api.services.calendar) {
+        exclude(group = "org.apache.httpcomponents")
+    }
+    implementation(libs.google.api.services.drive) {
         exclude(group = "org.apache.httpcomponents")
     }
 

@@ -32,6 +32,10 @@ On Windows, use `gradlew.bat` instead of `./gradlew`.
 
 - `WEB_CLIENT_ID` — Firebase/Google Sign-In OAuth client ID
 - `GEMINI_API_KEY` — Gemini AI API key for field extraction
+- `ADMOB_APP_ID` — AdMob application ID (injected via manifest placeholder; defaults to test ID)
+- `ADMOB_REWARDED_PRE_RECORD_ID` — Rewarded ad unit for pre-record (defaults to test ID)
+- `ADMOB_REWARDED_POST_SAVE_ID` — Rewarded ad unit for post-save (defaults to test ID)
+- `BILLING_SUBSCRIPTION_ID` — Play Billing subscription product ID (defaults to `recallly_premium_monthly`)
 
 These are read at build time via `Properties` in `app/build.gradle.kts`.
 
@@ -72,6 +76,9 @@ Routes defined as `@Serializable` sealed classes in `presentation/navigation/Rou
 - **Voice note storage**: `data/local/file/VoiceNoteFileStorage.kt` — JSON file at `filesDir/voice_notes.json`, Mutex for thread safety
 - **PDF export**: `data/export/PdfExportService.kt` — native Android `PdfDocument` API, A4 pages, uses `FieldLocalizer` for localized field names
 - **Language**: `core/util/LanguageManager.kt` — manages locale switching via `AppCompatDelegate.setApplicationLocales`
+- **Ads**: `data/ad/RewardedAdManager.kt` — Google Mobile Ads rewarded ads (initialized in `RecalllyApplication`)
+- **Billing**: `data/billing/BillingClientWrapper.kt` + `PremiumPreferences.kt` — Google Play Billing for premium subscription
+- **Reminders**: `data/notification/AlarmReminderScheduler.kt` — `AlarmManager`-based reminders with `ReminderReceiver` + `BootReceiver` for persistence across reboots
 
 ## Speech Recognition (Dual-Mode)
 
@@ -127,6 +134,7 @@ Dependencies managed via version catalog at `gradle/libs.versions.toml`. Add new
 | Background | WorkManager |
 | Logging | Timber |
 | AI | Google Generative AI (Gemini) |
+| Ads | Google Mobile Ads (AdMob rewarded ads) |
 | Serialization | Kotlinx Serialization JSON |
 
 ## Multi-Language Support
@@ -149,5 +157,6 @@ Dependencies managed via version catalog at `gradle/libs.versions.toml`. Add new
 - Strictly offline-first — no cloud database.
 - KSP + Room compiler are commented out — KSP 2.3+ requires AGP 9.0+ which Android Studio doesn't yet support. Uncomment when upgrading to AGP 9.
 - Voice notes are stored as JSON files via `VoiceNoteFileStorage` (not Room) — loaded into memory on app start via `VoiceNoteRepositoryImpl.loadFromDisk()`. The repository maintains an in-memory `MutableStateFlow` cache and persists on every add/update/delete.
+- Custom fields follow the same file-based pattern via `CustomFieldFileStorage` + `CustomFieldRepositoryImpl` (loaded from disk at Koin init via `runBlocking`).
 - No custom lint, detekt, or ktlint config — relies on IDE defaults.
 - No CI/CD pipeline configured.

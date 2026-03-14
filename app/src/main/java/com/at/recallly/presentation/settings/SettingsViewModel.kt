@@ -1,5 +1,6 @@
 package com.at.recallly.presentation.settings
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.at.recallly.core.util.ConnectivityChecker
@@ -19,6 +20,14 @@ import com.at.recallly.domain.model.PersonaField
 import com.at.recallly.domain.repository.CustomFieldRepository
 import com.at.recallly.domain.repository.BillingRepository
 import com.at.recallly.domain.usecase.billing.ObservePremiumStatusUseCase
+import com.at.recallly.BuildConfig
+import com.at.recallly.data.backup.DriveBackupService
+import com.at.recallly.data.backup.DriveAuthRequiredException
+import com.at.recallly.data.worker.BackupWorkScheduler
+import com.at.recallly.domain.repository.BackupRepository
+import com.at.recallly.domain.usecase.backup.BackupDataUseCase
+import com.at.recallly.domain.usecase.backup.GetBackupInfoUseCase
+import com.at.recallly.domain.usecase.backup.RestoreDataUseCase
 import com.at.recallly.domain.usecase.export.ExportVoiceNotesPdfUseCase
 import com.at.recallly.domain.usecase.fields.AddCustomFieldUseCase
 import com.at.recallly.domain.usecase.fields.DeleteCustomFieldUseCase
@@ -54,7 +63,13 @@ class SettingsViewModel(
     private val deleteCustomFieldUseCase: DeleteCustomFieldUseCase,
     private val deleteAllDataUseCase: DeleteAllDataUseCase,
     private val deleteAccountUseCase: DeleteAccountUseCase,
-    private val billingRepository: BillingRepository
+    private val billingRepository: BillingRepository,
+    private val backupDataUseCase: BackupDataUseCase,
+    private val restoreDataUseCase: RestoreDataUseCase,
+    private val getBackupInfoUseCase: GetBackupInfoUseCase,
+    private val backupWorkScheduler: BackupWorkScheduler,
+    private val backupRepository: BackupRepository,
+    private val driveBackupService: DriveBackupService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -115,7 +130,20 @@ class SettingsViewModel(
                         isDeletingAccount = current.isDeletingAccount,
                         accountDeleted = current.accountDeleted,
                         subscriptionPrice = current.subscriptionPrice,
-                        isPurchasing = current.isPurchasing
+                        isPurchasing = current.isPurchasing,
+                        driveBackupEnabled = current.driveBackupEnabled,
+                        isBackingUp = current.isBackingUp,
+                        isRestoring = current.isRestoring,
+                        backupSuccess = current.backupSuccess,
+                        restoreSuccess = current.restoreSuccess,
+                        backupError = current.backupError,
+                        restoreError = current.restoreError,
+                        lastBackupTimestamp = current.lastBackupTimestamp,
+                        remoteBackupInfo = current.remoteBackupInfo,
+                        showRestoreConfirmDialog = current.showRestoreConfirmDialog,
+                        isGoogleUser = current.isGoogleUser,
+                        needsDriveAuth = current.needsDriveAuth,
+                        pendingBackupAction = current.pendingBackupAction
                     )
                 }
             }
@@ -149,6 +177,23 @@ class SettingsViewModel(
                 _uiState.update { it.copy(subscriptionPrice = price) }
             } catch (_: Exception) { }
         }
+
+        // Observe drive backup preference
+        viewModelScope.launch {
+            preferencesManager.driveBackupEnabled.collect { enabled ->
+                _uiState.update { it.copy(driveBackupEnabled = enabled) }
+            }
+        }
+
+        // Observe last backup timestamp
+        viewModelScope.launch {
+            backupRepository.lastBackupTimestamp.collect { ts ->
+                _uiState.update { it.copy(lastBackupTimestamp = ts) }
+            }
+        }
+
+        // Set isGoogleUser flag
+        _uiState.update { it.copy(isGoogleUser = driveBackupService.isGoogleUser()) }
     }
 
     fun loadFieldsForCurrentPersona() {
@@ -468,6 +513,99 @@ class SettingsViewModel(
                 }
             }
 
+            // Backup & Restore
+            is SettingsUiEvent.ToggleDriveBackup -> {
+                val current = _uiState.value.driveBackupEnabled
+                if (!current && !driveBackupService.hasRequiredScopes()) {
+                    _uiState.update {
+                        it.copy(needsDriveAuth = true, pendingBackupAction = PendingBackupAction.ENABLE)
+                    }
+                    return
+                }
+                viewModelScope.launch {
+                    preferencesManager.setDriveBackupEnabled(!current)
+                    if (!current) {
+                        backupWorkScheduler.schedulePeriodicBackup()
+                    } else {
+                        backupWorkScheduler.cancelPeriodicBackup()
+                    }
+                }
+            }
+
+            is SettingsUiEvent.BackupNow -> {
+                if (!connectivityChecker.isOnline()) {
+                    _uiState.update { it.copy(errorMessage = "Backup requires an internet connection") }
+                    return
+                }
+                if (!driveBackupService.hasRequiredScopes()) {
+                    _uiState.update {
+                        it.copy(needsDriveAuth = true, pendingBackupAction = PendingBackupAction.BACKUP)
+                    }
+                    return
+                }
+                performBackup()
+            }
+
+            is SettingsUiEvent.RestoreFromBackup -> {
+                if (!connectivityChecker.isOnline()) {
+                    _uiState.update { it.copy(errorMessage = "Restore requires an internet connection") }
+                    return
+                }
+                if (!driveBackupService.hasRequiredScopes()) {
+                    _uiState.update {
+                        it.copy(needsDriveAuth = true, pendingBackupAction = PendingBackupAction.RESTORE)
+                    }
+                    return
+                }
+                performFetchBackupInfo()
+            }
+
+            is SettingsUiEvent.ConfirmRestore -> {
+                _uiState.update { it.copy(showRestoreConfirmDialog = false, isRestoring = true) }
+                viewModelScope.launch {
+                    when (val result = restoreDataUseCase()) {
+                        is Result.Success -> {
+                            _uiState.update {
+                                it.copy(isRestoring = false, restoreSuccess = true)
+                            }
+                        }
+                        is Result.Error -> {
+                            _uiState.update {
+                                it.copy(isRestoring = false, restoreError = result.exception.message)
+                            }
+                        }
+                    }
+                }
+            }
+
+            is SettingsUiEvent.DismissRestoreDialog -> {
+                _uiState.update { it.copy(showRestoreConfirmDialog = false, remoteBackupInfo = null) }
+            }
+
+            is SettingsUiEvent.ResetBackupSuccess -> {
+                _uiState.update { it.copy(backupSuccess = false, backupError = null) }
+            }
+
+            is SettingsUiEvent.ResetRestoreSuccess -> {
+                _uiState.update { it.copy(restoreSuccess = false, restoreError = null) }
+            }
+
+            is SettingsUiEvent.DriveAuthCompleted -> {
+                val pending = _uiState.value.pendingBackupAction
+                _uiState.update { it.copy(needsDriveAuth = false, pendingBackupAction = null) }
+                when (pending) {
+                    PendingBackupAction.ENABLE -> {
+                        viewModelScope.launch {
+                            preferencesManager.setDriveBackupEnabled(true)
+                            backupWorkScheduler.schedulePeriodicBackup()
+                        }
+                    }
+                    PendingBackupAction.BACKUP -> performBackup()
+                    PendingBackupAction.RESTORE -> performFetchBackupInfo()
+                    null -> { /* no-op */ }
+                }
+            }
+
             // Other
             is SettingsUiEvent.ClearValidationError -> {
                 _uiState.update { it.copy(validationError = null) }
@@ -475,6 +613,42 @@ class SettingsViewModel(
 
             is SettingsUiEvent.DismissError -> {
                 _uiState.update { it.copy(errorMessage = null) }
+            }
+        }
+    }
+
+    fun getAuthIntent(): Intent = driveBackupService.getAuthorizationIntent(BuildConfig.WEB_CLIENT_ID)
+
+    private fun performBackup() {
+        _uiState.update { it.copy(isBackingUp = true, backupError = null) }
+        viewModelScope.launch {
+            when (val result = backupDataUseCase()) {
+                is Result.Success -> {
+                    _uiState.update { it.copy(isBackingUp = false, backupSuccess = true) }
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(isBackingUp = false, backupError = result.exception.message) }
+                }
+            }
+        }
+    }
+
+    private fun performFetchBackupInfo() {
+        _uiState.update { it.copy(isRestoring = true, restoreError = null) }
+        viewModelScope.launch {
+            when (val result = getBackupInfoUseCase()) {
+                is Result.Success -> {
+                    if (result.data != null) {
+                        _uiState.update {
+                            it.copy(isRestoring = false, remoteBackupInfo = result.data, showRestoreConfirmDialog = true)
+                        }
+                    } else {
+                        _uiState.update { it.copy(isRestoring = false, restoreError = "No backup found") }
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(isRestoring = false, restoreError = result.exception.message) }
+                }
             }
         }
     }

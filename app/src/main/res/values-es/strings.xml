@@ -273,6 +273,21 @@
     <string name="detail_extraction_pending">Extracción en cola — los campos se llenarán cuando vuelvas a estar en línea</string>
     <string name="detail_no_value">\u2014</string>
 
+    <!-- Backup & Restore -->
+    <string name="settings_drive_backup">Copia de seguridad en Google Drive</string>
+    <string name="settings_drive_backup_desc">Copia de seguridad automática diaria de tus datos</string>
+    <string name="settings_backup_now">Hacer copia ahora</string>
+    <string name="settings_restore">Restaurar</string>
+    <string name="settings_restore_subtitle">Restaurar datos desde la copia de Google Drive</string>
+    <string name="settings_last_backup">Última copia: %1$s</string>
+    <string name="settings_never_backed_up">Sin copia de seguridad</string>
+    <string name="settings_backup_in_progress">Haciendo copia…</string>
+    <string name="settings_restore_in_progress">Restaurando…</string>
+    <string name="settings_backup_success">Copia de seguridad completada</string>
+    <string name="settings_restore_success">Datos restaurados correctamente</string>
+    <string name="settings_restore_confirm_title">¿Restaurar datos?</string>
+    <string name="settings_restore_confirm_message">Esto reemplazará todos los datos locales con la copia de %1$s (%2$d notas de voz, desde %3$s). Esta acción no se puede deshacer.</string>
+
     <!-- Export -->
     <string name="settings_export_data">Exportar datos</string>
     <string name="settings_export_subtitle">Descargar todas las notas como PDF</string>

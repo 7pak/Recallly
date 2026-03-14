@@ -57,6 +57,16 @@ sealed interface SettingsUiEvent {
     // Premium Purchase
     data class LaunchPurchase(val activity: android.app.Activity) : SettingsUiEvent
 
+    // Backup & Restore
+    data object ToggleDriveBackup : SettingsUiEvent
+    data object BackupNow : SettingsUiEvent
+    data object RestoreFromBackup : SettingsUiEvent
+    data object ConfirmRestore : SettingsUiEvent
+    data object DismissRestoreDialog : SettingsUiEvent
+    data object ResetBackupSuccess : SettingsUiEvent
+    data object ResetRestoreSuccess : SettingsUiEvent
+    data object DriveAuthCompleted : SettingsUiEvent
+
     // Other
     data object ClearValidationError : SettingsUiEvent
     data object DismissError : SettingsUiEvent

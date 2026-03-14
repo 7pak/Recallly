@@ -6,10 +6,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "recallly_prefs")
@@ -34,6 +36,7 @@ class PreferencesManager(private val context: Context) {
         val FREE_NOTES_USED = intPreferencesKey("free_notes_used")
         val FREE_CALENDAR_SYNCS_USED = intPreferencesKey("free_calendar_syncs_used")
         val FREE_NOTIFICATIONS_USED = intPreferencesKey("free_notifications_used")
+        val LAST_BACKUP_TIMESTAMP = longPreferencesKey("last_backup_timestamp")
     }
 
     fun getOnboardingStepForUser(uid: String): Flow<Int> = context.dataStore.data
@@ -240,6 +243,65 @@ class PreferencesManager(private val context: Context) {
     suspend fun clearAllData() {
         context.dataStore.edit { prefs ->
             prefs.clear()
+        }
+    }
+
+    // ── Backup ────────────────────────────────────────────────────────────
+
+    val lastBackupTimestamp: Flow<Long?> = context.dataStore.data
+        .map { prefs -> prefs[LAST_BACKUP_TIMESTAMP] }
+
+    suspend fun setLastBackupTimestamp(timestamp: Long) {
+        context.dataStore.edit { prefs ->
+            prefs[LAST_BACKUP_TIMESTAMP] = timestamp
+        }
+    }
+
+    suspend fun setDriveBackupEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[DRIVE_BACKUP_ENABLED] = enabled
+        }
+    }
+
+    suspend fun getPreferencesSnapshot(): Map<String, Any?> {
+        val prefs = context.dataStore.data.first()
+        return mapOf(
+            "selectedPersona" to prefs[SELECTED_PERSONA],
+            "selectedFieldIds" to (prefs[SELECTED_FIELD_IDS] ?: emptySet()),
+            "workDays" to (prefs[WORK_DAYS] ?: emptySet()),
+            "workStartTime" to prefs[WORK_START_TIME],
+            "workEndTime" to prefs[WORK_END_TIME],
+            "appLanguage" to (prefs[APP_LANGUAGE] ?: "en"),
+            "calendarSyncEnabled" to (prefs[CALENDAR_SYNC_ENABLED] == true),
+            "reminderNotificationsEnabled" to (prefs[REMINDER_NOTIFICATIONS_ENABLED] == true),
+            "hasSeenModelPrompt" to (prefs[HAS_SEEN_MODEL_PROMPT] == true),
+            "driveBackupEnabled" to (prefs[DRIVE_BACKUP_ENABLED] == true)
+        )
+    }
+
+    suspend fun restorePreferences(
+        persona: String?,
+        fieldIds: Set<String>,
+        workDays: Set<String>,
+        workStartTime: String?,
+        workEndTime: String?,
+        appLanguage: String,
+        calendarSyncEnabled: Boolean,
+        reminderNotificationsEnabled: Boolean,
+        hasSeenModelPrompt: Boolean,
+        driveBackupEnabled: Boolean
+    ) {
+        context.dataStore.edit { prefs ->
+            persona?.let { prefs[SELECTED_PERSONA] = it }
+            prefs[SELECTED_FIELD_IDS] = fieldIds
+            prefs[WORK_DAYS] = workDays
+            workStartTime?.let { prefs[WORK_START_TIME] = it }
+            workEndTime?.let { prefs[WORK_END_TIME] = it }
+            prefs[APP_LANGUAGE] = appLanguage
+            prefs[CALENDAR_SYNC_ENABLED] = calendarSyncEnabled
+            prefs[REMINDER_NOTIFICATIONS_ENABLED] = reminderNotificationsEnabled
+            prefs[HAS_SEEN_MODEL_PROMPT] = hasSeenModelPrompt
+            prefs[DRIVE_BACKUP_ENABLED] = driveBackupEnabled
         }
     }
 }

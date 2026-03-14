@@ -24,7 +24,10 @@ import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Backup
+import androidx.compose.material.icons.outlined.CloudDone
 import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.Description
@@ -76,9 +79,11 @@ import com.at.recallly.data.whisper.WhisperModelManager
 import com.at.recallly.domain.model.ModelDownloadState
 import com.at.recallly.presentation.common.LanguageSelectorDialog
 import com.at.recallly.presentation.util.localizedDisplayName
+import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.format.TextStyle
+import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -317,6 +322,123 @@ fun SettingsScreen(
         )
     }
 
+    // Restore confirmation dialog
+    if (uiState.showRestoreConfirmDialog && uiState.remoteBackupInfo != null) {
+        val info = uiState.remoteBackupInfo
+        val dateStr = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+            .format(Date(info.timestamp))
+        AlertDialog(
+            onDismissRequest = { onEvent(SettingsUiEvent.DismissRestoreDialog) },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.CloudDownload,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.settings_restore_confirm_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(
+                        R.string.settings_restore_confirm_message,
+                        dateStr,
+                        info.voiceNoteCount,
+                        info.deviceName
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onEvent(SettingsUiEvent.ConfirmRestore) },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.settings_restore))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { onEvent(SettingsUiEvent.DismissRestoreDialog) },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    // Backup/restore success feedback
+    LaunchedEffect(uiState.backupSuccess) {
+        if (uiState.backupSuccess) {
+            kotlinx.coroutines.delay(2000)
+            onEvent(SettingsUiEvent.ResetBackupSuccess)
+        }
+    }
+    LaunchedEffect(uiState.restoreSuccess) {
+        if (uiState.restoreSuccess) {
+            kotlinx.coroutines.delay(2000)
+            onEvent(SettingsUiEvent.ResetRestoreSuccess)
+        }
+    }
+
+    // Backup error dialog
+    if (uiState.backupError != null) {
+        AlertDialog(
+            onDismissRequest = { onEvent(SettingsUiEvent.ResetBackupSuccess) },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            text = {
+                Text(
+                    text = uiState.backupError,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onEvent(SettingsUiEvent.ResetBackupSuccess) },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            }
+        )
+    }
+
+    // Restore error dialog
+    if (uiState.restoreError != null) {
+        AlertDialog(
+            onDismissRequest = { onEvent(SettingsUiEvent.ResetRestoreSuccess) },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            text = {
+                Text(
+                    text = uiState.restoreError,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onEvent(SettingsUiEvent.ResetRestoreSuccess) },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -490,6 +612,83 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.tertiary,
                     trackColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
                 )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Backup & Restore Section
+            DriveBackupRow(
+                driveBackupEnabled = uiState.driveBackupEnabled,
+                onToggle = { onEvent(SettingsUiEvent.ToggleDriveBackup) }
+            )
+
+            if (uiState.driveBackupEnabled) {
+                // Backup Now
+                val backupSubtitle = when {
+                    uiState.isBackingUp -> stringResource(R.string.settings_backup_in_progress)
+                    uiState.backupSuccess -> stringResource(R.string.settings_backup_success)
+                    uiState.lastBackupTimestamp != null -> stringResource(
+                        R.string.settings_last_backup,
+                        SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+                            .format(Date(uiState.lastBackupTimestamp))
+                    )
+                    else -> stringResource(R.string.settings_never_backed_up)
+                }
+                SettingsRow(
+                    icon = Icons.Outlined.Backup,
+                    iconContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    title = stringResource(R.string.settings_backup_now),
+                    subtitle = backupSubtitle,
+                    onClick = {
+                        if (!uiState.isBackingUp) onEvent(SettingsUiEvent.BackupNow)
+                    }
+                )
+
+                if (uiState.isBackingUp) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    )
+                }
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Restore
+                val restoreSubtitle = when {
+                    uiState.isRestoring -> stringResource(R.string.settings_restore_in_progress)
+                    uiState.restoreSuccess -> stringResource(R.string.settings_restore_success)
+                    else -> stringResource(R.string.settings_restore_subtitle)
+                }
+                SettingsRow(
+                    icon = Icons.Outlined.CloudDownload,
+                    iconContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    title = stringResource(R.string.settings_restore),
+                    subtitle = restoreSubtitle,
+                    onClick = {
+                        if (!uiState.isRestoring) onEvent(SettingsUiEvent.RestoreFromBackup)
+                    }
+                )
+
+                if (uiState.isRestoring) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    )
+                }
             }
 
             HorizontalDivider(
@@ -757,6 +956,53 @@ private fun ReminderNotificationsRow(
             checked = reminderEnabled,
             onCheckedChange = { if (isPremium) onToggle() },
             enabled = isPremium
+        )
+    }
+}
+
+@Composable
+private fun DriveBackupRow(
+    driveBackupEnabled: Boolean,
+    onToggle: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onToggle)
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.primaryContainer,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Outlined.CloudUpload,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.settings_drive_backup),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = stringResource(R.string.settings_drive_backup_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Switch(
+            checked = driveBackupEnabled,
+            onCheckedChange = { onToggle() }
         )
     }
 }

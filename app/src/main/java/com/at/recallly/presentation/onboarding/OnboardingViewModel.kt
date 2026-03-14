@@ -9,6 +9,7 @@ import com.at.recallly.domain.usecase.auth.GetCurrentUserUseCase
 import com.at.recallly.domain.usecase.onboarding.GetFieldsForPersonaUseCase
 import com.at.recallly.domain.usecase.onboarding.SaveFieldsUseCase
 import com.at.recallly.domain.usecase.onboarding.SavePersonaUseCase
+import com.at.recallly.data.worker.BackupWorkScheduler
 import com.at.recallly.domain.usecase.onboarding.SaveScheduleUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,7 +31,8 @@ class OnboardingViewModel(
     private val savePersonaUseCase: SavePersonaUseCase,
     private val saveFieldsUseCase: SaveFieldsUseCase,
     private val saveScheduleUseCase: SaveScheduleUseCase,
-    private val onboardingRepository: OnboardingRepository
+    private val onboardingRepository: OnboardingRepository,
+    private val backupWorkScheduler: BackupWorkScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -78,6 +80,9 @@ class OnboardingViewModel(
     fun saveDataConsent(driveBackupEnabled: Boolean) {
         viewModelScope.launch {
             onboardingRepository.saveDataConsent(driveBackupEnabled)
+            if (driveBackupEnabled) {
+                backupWorkScheduler.schedulePeriodicBackup()
+            }
         }
     }
 

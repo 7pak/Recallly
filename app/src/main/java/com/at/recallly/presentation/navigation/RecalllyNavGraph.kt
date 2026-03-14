@@ -1,5 +1,8 @@
 package com.at.recallly.presentation.navigation
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.at.recallly.presentation.settings.SettingsUiEvent
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -191,6 +195,21 @@ fun RecalllyNavGraph(
         composable<Route.Settings> {
             val settingsViewModel: SettingsViewModel = koinViewModel()
             val settingsState by settingsViewModel.uiState.collectAsState()
+
+            val driveAuthLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    settingsViewModel.onEvent(SettingsUiEvent.DriveAuthCompleted)
+                }
+            }
+
+            LaunchedEffect(settingsState.needsDriveAuth) {
+                if (settingsState.needsDriveAuth) {
+                    driveAuthLauncher.launch(settingsViewModel.getAuthIntent())
+                }
+            }
+
             SettingsScreen(
                 uiState = settingsState,
                 onEvent = { settingsViewModel.onEvent(it) },

@@ -1,19 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Data extraction rules for Android 12+ (API 31+).
    See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- Back up DataStore preferences -->
+        <include domain="file" path="datastore/" />
+
+        <!-- Back up voice notes and custom fields JSON -->
+        <include domain="file" path="voice_notes.json" />
+        <include domain="file" path="custom_fields.json" />
+
+        <!-- Exclude whisper model (too large, downloaded at runtime) -->
+        <exclude domain="file" path="models/" />
+
+        <!-- Exclude cached ads state -->
+        <exclude domain="sharedpref" path="com.google.android.gms.ads.prefs.xml" />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <include domain="file" path="datastore/" />
+        <include domain="file" path="voice_notes.json" />
+        <include domain="file" path="custom_fields.json" />
+        <exclude domain="file" path="models/" />
     </device-transfer>
-    -->
 </data-extraction-rules>

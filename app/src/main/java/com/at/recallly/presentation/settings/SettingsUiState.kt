@@ -1,6 +1,7 @@
 package com.at.recallly.presentation.settings
 
 import android.net.Uri
+import com.at.recallly.domain.model.BackupMetadata
 import com.at.recallly.domain.model.ModelDownloadState
 import com.at.recallly.domain.model.Persona
 import com.at.recallly.domain.model.PersonaField
@@ -48,5 +49,21 @@ data class SettingsUiState(
     val accountDeleted: Boolean = false,
     // Premium Purchase
     val subscriptionPrice: String? = null,
-    val isPurchasing: Boolean = false
+    val isPurchasing: Boolean = false,
+    // Backup & Restore
+    val driveBackupEnabled: Boolean = false,
+    val isBackingUp: Boolean = false,
+    val isRestoring: Boolean = false,
+    val backupSuccess: Boolean = false,
+    val restoreSuccess: Boolean = false,
+    val backupError: String? = null,
+    val restoreError: String? = null,
+    val lastBackupTimestamp: Long? = null,
+    val remoteBackupInfo: BackupMetadata? = null,
+    val showRestoreConfirmDialog: Boolean = false,
+    val isGoogleUser: Boolean = false,
+    val needsDriveAuth: Boolean = false,
+    val pendingBackupAction: PendingBackupAction? = null
 )
+
+enum class PendingBackupAction { BACKUP, RESTORE, ENABLE }
