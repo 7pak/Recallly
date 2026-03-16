@@ -349,15 +349,15 @@
 
     <!-- Premium Subscription -->
     <string name="premium_title">Recallly Premium</string>
-    <string name="premium_benefit_notes">Unlimited AI voice notes</string>
-    <string name="premium_benefit_no_ads">No ads</string>
-    <string name="premium_benefit_calendar">Calendar sync</string>
-    <string name="premium_benefit_notifications">Reminder notifications</string>
+    <string name="premium_benefit_notes">Unlimited AI-powered voice notes</string>
+    <string name="premium_benefit_no_ads">100% ad-free experience</string>
+    <string name="premium_benefit_calendar">Auto-sync notes to Google Calendar</string>
+    <string name="premium_benefit_notifications">Unlimited smart reminders</string>
     <string name="premium_subscribe_button">Subscribe Now</string>
     <string name="premium_active">Premium Active</string>
     <string name="premium_limited_offer">LIMITED OFFER</string>
     <string name="premium_original_price">$8.99</string>
-    <string name="premium_offer_price">$4.99</string>
+    <string name="premium_offer_price">$3.99</string>
     <string name="premium_per_month">/month</string>
     <string name="ad_gate_go_premium">Go Premium</string>
 </resources>

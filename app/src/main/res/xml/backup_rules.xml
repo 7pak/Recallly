@@ -10,10 +10,4 @@
     <!-- Back up voice notes and custom fields JSON -->
     <include domain="file" path="voice_notes.json" />
     <include domain="file" path="custom_fields.json" />
-
-    <!-- Exclude whisper model (too large, downloaded at runtime) -->
-    <exclude domain="file" path="models/" />
-
-    <!-- Exclude cached ads and billing state -->
-    <exclude domain="sharedpref" path="com.google.android.gms.ads.prefs.xml" />
 </full-backup-content>

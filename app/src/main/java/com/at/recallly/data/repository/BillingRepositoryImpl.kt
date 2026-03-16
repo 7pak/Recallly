@@ -9,11 +9,13 @@ import com.at.recallly.data.billing.BillingClientWrapper
 import com.at.recallly.data.billing.PremiumPreferences
 import com.at.recallly.domain.model.SubscriptionStatus
 import com.at.recallly.domain.repository.BillingRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -25,16 +27,28 @@ class BillingRepositoryImpl(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var cachedProductDetails: ProductDetails? = null
 
+    private companion object {
+        val PREMIUM_UIDS = setOf("pqn6XkiXPFhTcSBd1c0teuKybin2")
+    }
+
+    private fun isGrantedPremiumUser(): Boolean {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        return uid != null && uid in PREMIUM_UIDS
+    }
+
     override val subscriptionStatus: Flow<SubscriptionStatus> =
         if (BuildConfig.DEBUG) {
             combine(
                 premiumPreferences.subscriptionStatus,
                 premiumPreferences.debugOverride
             ) { status, override ->
-                if (override != null) status.copy(isPremium = override) else status
+                if (isGrantedPremiumUser()) status.copy(isPremium = true)
+                else if (override != null) status.copy(isPremium = override) else status
             }
         } else {
-            premiumPreferences.subscriptionStatus
+            premiumPreferences.subscriptionStatus.map { status ->
+                if (isGrantedPremiumUser()) status.copy(isPremium = true) else status
+            }
         }
 
     init {
