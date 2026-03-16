@@ -349,15 +349,15 @@
 
     <!-- Premium Subscription -->
     <string name="premium_title">Recallly بريميوم</string>
-    <string name="premium_benefit_notes">ملاحظات صوتية ذكية غير محدودة</string>
-    <string name="premium_benefit_no_ads">بدون إعلانات</string>
-    <string name="premium_benefit_calendar">مزامنة التقويم</string>
-    <string name="premium_benefit_notifications">إشعارات التذكير</string>
+    <string name="premium_benefit_notes">ملاحظات صوتية غير محدودة بالذكاء الاصطناعي</string>
+    <string name="premium_benefit_no_ads">تجربة خالية من الإعلانات بالكامل</string>
+    <string name="premium_benefit_calendar">مزامنة تلقائية مع تقويم Google</string>
+    <string name="premium_benefit_notifications">تذكيرات ذكية غير محدودة</string>
     <string name="premium_subscribe_button">اشترك الآن</string>
     <string name="premium_active">بريميوم مفعّل</string>
     <string name="premium_limited_offer">عرض محدود</string>
     <string name="premium_original_price">$8.99</string>
-    <string name="premium_offer_price">$4.99</string>
+    <string name="premium_offer_price">$3.99</string>
     <string name="premium_per_month">/شهر</string>
     <string name="ad_gate_go_premium">الترقية لبريميوم</string>
 </resources>

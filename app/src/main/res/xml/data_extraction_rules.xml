@@ -5,23 +5,13 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- Back up DataStore preferences -->
         <include domain="file" path="datastore/" />
-
-        <!-- Back up voice notes and custom fields JSON -->
         <include domain="file" path="voice_notes.json" />
         <include domain="file" path="custom_fields.json" />
-
-        <!-- Exclude whisper model (too large, downloaded at runtime) -->
-        <exclude domain="file" path="models/" />
-
-        <!-- Exclude cached ads state -->
-        <exclude domain="sharedpref" path="com.google.android.gms.ads.prefs.xml" />
     </cloud-backup>
     <device-transfer>
         <include domain="file" path="datastore/" />
         <include domain="file" path="voice_notes.json" />
         <include domain="file" path="custom_fields.json" />
-        <exclude domain="file" path="models/" />
     </device-transfer>
 </data-extraction-rules>

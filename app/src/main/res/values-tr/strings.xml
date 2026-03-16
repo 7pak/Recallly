@@ -349,15 +349,15 @@
 
     <!-- Premium Subscription -->
     <string name="premium_title">Recallly Premium</string>
-    <string name="premium_benefit_notes">Sınırsız yapay zeka sesli notlar</string>
-    <string name="premium_benefit_no_ads">Reklamsız</string>
-    <string name="premium_benefit_calendar">Takvim senkronizasyonu</string>
-    <string name="premium_benefit_notifications">Hatırlatma bildirimleri</string>
+    <string name="premium_benefit_notes">Sınırsız yapay zeka destekli sesli notlar</string>
+    <string name="premium_benefit_no_ads">%100 reklamsız deneyim</string>
+    <string name="premium_benefit_calendar">Google Takvim ile otomatik senkronizasyon</string>
+    <string name="premium_benefit_notifications">Sınırsız akıllı hatırlatmalar</string>
     <string name="premium_subscribe_button">Şimdi Abone Ol</string>
     <string name="premium_active">Premium Aktif</string>
     <string name="premium_limited_offer">SINIRLI TEKLİF</string>
     <string name="premium_original_price">$8.99</string>
-    <string name="premium_offer_price">$4.99</string>
+    <string name="premium_offer_price">$3.99</string>
     <string name="premium_per_month">/ay</string>
     <string name="ad_gate_go_premium">Premium\'a Geç</string>
 </resources>
